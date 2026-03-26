@@ -1,0 +1,198 @@
+"""
+Abstract base class and protocol for LLM providers.
+
+Defines the interface that all provider implementations must follow.
+"""
+
+from abc import ABC, abstractmethod
+from typing import Any, AsyncGenerator, Generator, Optional
+
+from .models import BridgeResponse, ConversationBuffer, LLMConfig, Message, MessageRole
+
+
+class BaseLLMProvider(ABC):
+    """
+    Abstract base class for LLM providers.
+
+    Defines the interface that all LLM provider implementations must follow.
+    Providers handle the actual communication with specific LLMs or services.
+
+    Example:
+        >>> class MyProvider(BaseLLMProvider):
+        ...     def generate(self, prompt: str, config: LLMConfig) -> str:
+        ...         # Implement actual LLM call
+        ...         pass
+        ...
+        ...     async def generate_async(self, prompt: str, config: LLMConfig) -> str:
+        ...         # Implement async version
+        ...         pass
+    """
+
+    def __init__(self, model: str, **kwargs: Any) -> None:
+        """
+        Initialize the provider.
+
+        Args:
+            model: The model identifier to use
+            **kwargs: Additional provider-specific configuration
+        """
+        self.model = model
+        self.config = kwargs
+
+    @abstractmethod
+    def generate(
+        self,
+        prompt: str,
+        history: ConversationBuffer,
+        config: Optional[LLMConfig] = None,
+    ) -> BridgeResponse:
+        """
+        Generate a response from the LLM.
+
+        Args:
+            prompt: The user prompt
+            history: The conversation history
+            config: Optional LLM configuration
+
+        Returns:
+            BridgeResponse with the generated text and metadata
+
+        Raises:
+            ProviderError: If the generation fails
+        """
+        pass
+
+    @abstractmethod
+    def generate_stream(
+        self,
+        prompt: str,
+        history: ConversationBuffer,
+        config: Optional[LLMConfig] = None,
+    ) -> Generator[BridgeResponse, None, None]:
+        """
+        Generate a response from the LLM with streaming.
+
+        Yields tokens/chunks as they become available.
+
+        Args:
+            prompt: The user prompt
+            history: The conversation history
+            config: Optional LLM configuration
+
+        Yields:
+            BridgeResponse objects with partial text
+
+        Raises:
+            ProviderError: If the generation fails
+        """
+        pass
+
+    async def generate_async(
+        self,
+        prompt: str,
+        history: ConversationBuffer,
+        config: Optional[LLMConfig] = None,
+    ) -> BridgeResponse:
+        """
+        Async version of generate.
+
+        Default implementation calls the sync version.
+        Can be overridden for true async support.
+
+        Args:
+            prompt: The user prompt
+            history: The conversation history
+            config: Optional LLM configuration
+
+        Returns:
+            BridgeResponse with the generated text and metadata
+        """
+        return self.generate(prompt, history, config)
+
+    async def generate_stream_async(
+        self,
+        prompt: str,
+        history: ConversationBuffer,
+        config: Optional[LLMConfig] = None,
+    ) -> AsyncGenerator[BridgeResponse, None]:
+        """
+        Async version of generate_stream.
+
+        Default implementation wraps sync streaming.
+        Can be overridden for true async support.
+
+        Args:
+            prompt: The user prompt
+            history: The conversation history
+            config: Optional LLM configuration
+
+        Yields:
+            BridgeResponse objects with partial text
+        """
+        for response in self.generate_stream(prompt, history, config):
+            yield response
+
+    def validate_connection(self) -> bool:
+        """
+        Validate that the provider can be reached.
+
+        Should attempt a simple health check or connection test.
+
+        Returns:
+            True if provider is reachable, False otherwise
+
+        Example:
+            >>> provider = OllamaProvider(model="llama2")
+            >>> if provider.validate_connection():
+            ...     print("Connected!")
+        """
+        return True
+
+    def get_model_info(self) -> Optional[dict[str, Any]]:
+        """
+        Get information about the current model.
+
+        Returns:
+            Dictionary with model information or None if not available
+        """
+        return None
+
+    def __repr__(self) -> str:
+        """Return string representation of the provider."""
+        return f"{self.__class__.__name__}(model={self.model})"
+
+
+class ToolProvider(ABC):
+    """
+    Optional mixin for providers that support tool/function calling.
+
+    Implement this to add tool/function calling support to a provider.
+    """
+
+    @abstractmethod
+    def register_tool(self, name: str, description: str, schema: dict[str, Any]) -> None:
+        """
+        Register a tool that the LLM can call.
+
+        Args:
+            name: Name of the tool/function
+            description: Description of what the tool does
+            schema: JSON schema of the tool's parameters
+        """
+        pass
+
+    @abstractmethod
+    def get_registered_tools(self) -> list[dict[str, Any]]:
+        """
+        Get list of all registered tools.
+
+        Returns:
+            List of tool definitions
+        """
+        pass
+
+
+__all__ = [
+    "BaseLLMProvider",
+    "ToolProvider",
+]
