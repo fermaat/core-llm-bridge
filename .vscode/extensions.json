@@ -1,0 +1,30 @@
+{
+  "recommendations": [
+    // ========== Essential Python Tools ==========
+    "ms-python.python",
+    "ms-python.vscode-pylance",
+    "ms-python.black-formatter",
+    "charliermarsh.ruff",
+
+    // ========== Code Quality ==========
+    "ms-python.debugpy",
+    "ms-python.jupyter",
+    "sonarsource.sonarlint-vscode",
+
+    // ========== Editor Helpers ==========
+    "EditorConfig.EditorConfig",
+    "eamodio.gitlens",
+    "GitHub.copilot",
+    "GitHub.copilot-chat",
+
+    // ========== Formatters & Linters ==========
+    "ms-python.black-formatter",
+    "charliermarsh.ruff",
+    "ms-python.mypy-type-checker",
+
+    // ========== Productivity ==========
+    "ms-python.vscode-pylance",
+    "ms-vscode.makefile-tools",
+    "fernandoescolar.vscode-solution-explorer"
+  ]
+}

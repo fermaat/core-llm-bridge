@@ -102,22 +102,38 @@ class PromptManager:
 
         self.templates[name] = PromptTemplate(template_str)
 
-    def load_from_yaml(self, yaml_path: str | Path) -> None:
+    def load_from_yaml(self, yaml_path: str | Path) -> int:
         """
-        Load a prompt template from a YAML file.
+        Load prompt templates from a YAML file.
 
-        YAML format:
+        Supports two formats:
+
+        **Single prompt format:**
             name: template_name
             template: |
               Your template with $variables here
             description: (optional) Description of the template
 
+        **Multiple prompts format:**
+            prompts:
+              - name: prompt1
+                template: |
+                  Template 1...
+                description: (optional)
+              - name: prompt2
+                template: |
+                  Template 2...
+                description: (optional)
+
         Args:
             yaml_path: Path to YAML file
 
+        Returns:
+            Number of templates loaded from this file
+
         Raises:
             FileNotFoundError: If YAML file doesn't exist
-            ValueError: If YAML missing 'name' or 'template' fields
+            ValueError: If YAML format is invalid
         """
         yaml_path = Path(yaml_path)
         if not yaml_path.exists():
@@ -129,24 +145,46 @@ class PromptManager:
         if not isinstance(data, dict):
             raise ValueError(f"Invalid YAML format in {yaml_path}: expected dict")
 
-        if "name" not in data or "template" not in data:
+        loaded = 0
+
+        # Check if this is a "multiple prompts" format with a 'prompts' key
+        if "prompts" in data and isinstance(data["prompts"], list):
+            # Multiple prompts format: prompts: [...]
+            for prompt_data in data["prompts"]:
+                if not isinstance(prompt_data, dict):
+                    raise ValueError(f"Invalid prompt entry in {yaml_path}: expected dict")
+                if "name" not in prompt_data or "template" not in prompt_data:
+                    raise ValueError(
+                        f"Each prompt in {yaml_path} must have 'name' and 'template' fields"
+                    )
+                self.register(
+                    prompt_data["name"],
+                    prompt_data["template"].strip()
+                )
+                loaded += 1
+        elif "name" in data and "template" in data:
+            # Single prompt format: name/template at root level
+            self.register(data["name"], data["template"].strip())
+            loaded = 1
+        else:
             raise ValueError(
-                f"YAML must contain 'name' and 'template' fields in {yaml_path}"
+                f"YAML {yaml_path} must have either 'name'+'template' fields "
+                "or a 'prompts' list"
             )
 
-        self.register(data["name"], data["template"].strip())
+        return loaded
 
     def load_from_directory(self, directory: str | Path) -> int:
         """
         Load all YAML prompt files from a directory.
 
-        Returns the number of templates loaded.
+        Returns the total number of templates loaded.
 
         Args:
             directory: Path to directory containing .yaml files
 
         Returns:
-            Number of templates successfully loaded
+            Total number of templates successfully loaded
 
         Raises:
             FileNotFoundError: If directory doesn't exist
@@ -155,16 +193,16 @@ class PromptManager:
         if not directory.exists():
             raise FileNotFoundError(f"Directory not found: {directory}")
 
-        loaded = 0
+        total_loaded = 0
         for yaml_file in sorted(directory.glob("*.yaml")):
             try:
-                self.load_from_yaml(yaml_file)
-                loaded += 1
+                loaded = self.load_from_yaml(yaml_file)
+                total_loaded += loaded
             except (ValueError, KeyError) as e:
                 # Log but continue loading other files
                 print(f"Warning: Failed to load {yaml_file}: {e}")
 
-        return loaded
+        return total_loaded
 
     def get(self, name: str) -> Optional[PromptTemplate]:
         """
@@ -264,5 +302,4 @@ __all__ = [
     "PromptTemplate",
     "PromptManager",
     "create_prompt_manager",
-    "COMMON_PROMPTS",
 ]

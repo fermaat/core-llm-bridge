@@ -1,0 +1,83 @@
+{
+  // ========== Editor Basics ==========
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "ms-python.black-formatter",
+  "editor.tabSize": 4,
+  "editor.insertSpaces": true,
+  "editor.trimAutoWhitespace": true,
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true,
+  "files.trimFinalNewlines": true,
+
+  // ========== Python Configuration ==========
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.black-formatter",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll.ruff": "explicit",
+      "source.organizeImports.ruff": "explicit",
+      "source.fixAll.pylance": "explicit"
+    },
+    "editor.rulers": [88, 100]
+  },
+
+  // ========== Python Language Server (Pylance) ==========
+  "python.linting.enabled": true,
+  "python.linting.ruffEnabled": true,
+  "python.analysis.typeCheckingMode": "basic",
+
+  // Pylance settings
+  "[python] > editor.defaultFormatter": "ms-python.python",
+  "python.formatting.provider": "black",
+  "python.linting.pylintEnabled": false,
+  "python.linting.flake8Enabled": false,
+
+  // ========== Black Formatter ==========
+  "black-formatter.args": ["--line-length=88"],
+  "black-formatter.importStrategy": "fromEnvironment",
+
+  // ========== Ruff Linter ==========
+  "ruff.lint.args": ["--config=pyproject.toml"],
+  "ruff.importStrategy": "fromEnvironment",
+  "ruff.fixAll": true,
+  "ruff.organizeImports": true,
+
+  // ========== isort (Import Sorting) ==========
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.black-formatter",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.organizeImports.ruff": "explicit"
+    }
+  },
+
+  // ========== General Editor ==========
+  "files.exclude": {
+    "**/__pycache__": true,
+    "**/*.pyc": true,
+    "**/.pytest_cache": true,
+    "**/.coverage": true,
+    "**/htmlcov": true,
+    "**/.mypy_cache": true,
+    "**/.venv": true,
+    "**/.env.local": true
+  },
+
+  "files.watcherExclude": {
+    "**/.venv": true,
+    "**/node_modules": true,
+    "**/.pytest_cache": true,
+    "**/__pycache__": true
+  },
+
+  // ========== EditorConfig Integration ==========
+  "editorconfig.enable": true,
+
+  // ========== Search Exclusions ==========
+  "search.exclude": {
+    "**/.venv": true,
+    "**/__pycache__": true,
+    "**/htmlcov": true,
+    "**/.pytest_cache": true
+  }
+}

@@ -1,0 +1,10 @@
+# Bandit security configuration
+
+# Tests to skip
+skips: ["B101"]  # Skip assert_used
+
+# Test severity level
+assert_used:
+  skips:
+    - test_*.py
+    - */tests/*
