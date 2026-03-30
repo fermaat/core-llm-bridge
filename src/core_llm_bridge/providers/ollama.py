@@ -9,8 +9,9 @@ Requires:
     - OLLAMA_BASE_URL configured in .env
 """
 
-import time
-from typing import Any, AsyncGenerator, Generator, Optional
+from collections.abc import AsyncGenerator, Generator
+from contextlib import suppress
+from typing import Any
 
 import httpx
 
@@ -54,9 +55,9 @@ class OllamaProvider(BaseLLMProvider):
 
     def __init__(
         self,
-        model: Optional[str] = None,
-        base_url: Optional[str] = None,
-        timeout: Optional[int] = None,
+        model: str | None = None,
+        base_url: str | None = None,
+        timeout: int | None = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -142,7 +143,7 @@ class OllamaProvider(BaseLLMProvider):
             logger.error(f"Error validating Ollama connection: {e}")
             return False
 
-    def get_model_info(self) -> Optional[dict[str, Any]]:
+    def get_model_info(self) -> dict[str, Any] | None:
         """
         Get information about the model.
 
@@ -150,7 +151,7 @@ class OllamaProvider(BaseLLMProvider):
             Dictionary with model information or None if error
         """
         try:
-            response = self.client.get(f"/api/show", json={"name": self.model})
+            response = self.client.get("/api/show", json={"name": self.model})
             if response.status_code == 200:
                 return response.json()
             return None
@@ -162,7 +163,7 @@ class OllamaProvider(BaseLLMProvider):
         self,
         prompt: str,
         history: ConversationBuffer,
-        config: Optional[LLMConfig] = None,
+        config: LLMConfig | None = None,
     ) -> BridgeResponse:
         """
         Generate a response from Ollama.
@@ -210,8 +211,7 @@ class OllamaProvider(BaseLLMProvider):
 
             if response.status_code == 404:
                 raise OllamaModelNotFoundError(
-                    f"Model '{self.model}' not found. "
-                    f"Download it: ollama pull {self.model}"
+                    f"Model '{self.model}' not found. " f"Download it: ollama pull {self.model}"
                 )
 
             if response.status_code != 200:
@@ -260,7 +260,7 @@ class OllamaProvider(BaseLLMProvider):
         self,
         prompt: str,
         history: ConversationBuffer,
-        config: Optional[LLMConfig] = None,
+        config: LLMConfig | None = None,
     ) -> Generator[BridgeResponse, None, None]:
         """
         Generate a response from Ollama with streaming.
@@ -308,14 +308,11 @@ class OllamaProvider(BaseLLMProvider):
             with self.client.stream("POST", "/api/chat", json=request_data) as response:
                 if response.status_code == 404:
                     raise OllamaModelNotFoundError(
-                        f"Model '{self.model}' not found. "
-                        f"Download it: ollama pull {self.model}"
+                        f"Model '{self.model}' not found. " f"Download it: ollama pull {self.model}"
                     )
 
                 if response.status_code != 200:
-                    raise OllamaConnectionError(
-                        f"Ollama error: {response.status_code}"
-                    )
+                    raise OllamaConnectionError(f"Ollama error: {response.status_code}")
 
                 # Stream responses as they come
                 full_response = ""
@@ -340,9 +337,8 @@ class OllamaProvider(BaseLLMProvider):
 
                         # Check if this is the last chunk
                         if data.get("done", False):
-                            tokens_used = (
-                                data.get("eval_count", 0)
-                                + data.get("prompt_eval_count", 0)
+                            tokens_used = data.get("eval_count", 0) + data.get(
+                                "prompt_eval_count", 0
                             )
                             yield BridgeResponse(
                                 text="",
@@ -373,7 +369,7 @@ class OllamaProvider(BaseLLMProvider):
         self,
         prompt: str,
         history: ConversationBuffer,
-        config: Optional[LLMConfig] = None,
+        config: LLMConfig | None = None,
     ) -> BridgeResponse:
         """
         Async version of generate (uses sync implementation for now).
@@ -386,7 +382,7 @@ class OllamaProvider(BaseLLMProvider):
         self,
         prompt: str,
         history: ConversationBuffer,
-        config: Optional[LLMConfig] = None,
+        config: LLMConfig | None = None,
     ) -> AsyncGenerator[BridgeResponse, None]:
         """
         Async version of generate_stream (uses sync implementation for now).
@@ -398,10 +394,8 @@ class OllamaProvider(BaseLLMProvider):
 
     def __del__(self) -> None:
         """Clean up HTTP client."""
-        try:
+        with suppress(Exception):
             self.client.close()
-        except Exception:
-            pass
 
 
 __all__ = ["OllamaProvider"]

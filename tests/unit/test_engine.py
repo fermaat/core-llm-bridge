@@ -4,7 +4,6 @@ import pytest
 
 from core_llm_bridge import BridgeEngine, ConversationBuffer, LLMConfig
 from core_llm_bridge.core import BaseLLMProvider, BridgeResponse
-from core_llm_bridge.exceptions import LLMBridgeError
 
 
 class MockProvider(BaseLLMProvider):
@@ -13,8 +12,8 @@ class MockProvider(BaseLLMProvider):
     def generate(
         self,
         prompt: str,
-        history: ConversationBuffer,
-        config: LLMConfig | None = None,
+        _history: ConversationBuffer,
+        _config: LLMConfig | None = None,
     ) -> BridgeResponse:
         """Return a mock response."""
         return BridgeResponse(
@@ -25,8 +24,8 @@ class MockProvider(BaseLLMProvider):
     def generate_stream(
         self,
         prompt: str,
-        history: ConversationBuffer,
-        config: LLMConfig | None = None,
+        _history: ConversationBuffer,
+        _config: LLMConfig | None = None,
     ):
         """Yield mock response in chunks."""
         response_text = f"Mock response to: {prompt}"

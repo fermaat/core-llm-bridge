@@ -62,9 +62,7 @@ class TestTokenCounter:
 
         # Truncated should be shorter and fit in context
         assert len(truncated) <= len(long_text)
-        assert TokenCounter.will_fit_in_context(
-            truncated, max_tokens=50, safety_margin=10
-        )
+        assert TokenCounter.will_fit_in_context(truncated, max_tokens=50, safety_margin=10)
 
 
 class TestPromptTemplate:
@@ -156,9 +154,7 @@ class TestPromptManager:
         manager = PromptManager()
 
         # Create a temporary YAML file
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".yaml", delete=False
-        ) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
             f.write("name: test_prompt\n")
             f.write("template: |\n")
             f.write("  You are a $role\n")

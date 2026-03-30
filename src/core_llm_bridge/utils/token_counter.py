@@ -4,8 +4,6 @@ Token counting utilities for managing context windows.
 Provides utilities to estimate token counts for different models.
 """
 
-from typing import Optional
-
 
 class TokenCounter:
     """
@@ -69,9 +67,7 @@ class TokenCounter:
         return max(estimated_tokens, 1)  # At least 1 token
 
     @staticmethod
-    def count_messages_tokens(
-        messages: list[dict[str, str]], model: str = "default"
-    ) -> int:
+    def count_messages_tokens(messages: list[dict[str, str]], model: str = "default") -> int:
         """
         Estimate total tokens for a list of messages.
 

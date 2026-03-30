@@ -6,7 +6,7 @@ Provides utilities for managing system prompts, templates, and formatting.
 
 from pathlib import Path
 from string import Template
-from typing import Any, Optional
+from typing import Any
 
 import yaml
 
@@ -50,7 +50,7 @@ class PromptTemplate:
         try:
             return self.template.substitute(**variables)
         except KeyError as e:
-            raise KeyError(f"Missing template variable: {e}")
+            raise KeyError(f"Missing template variable: {e}") from None
 
     def get_variables(self) -> set[str]:
         """
@@ -139,7 +139,7 @@ class PromptManager:
         if not yaml_path.exists():
             raise FileNotFoundError(f"YAML file not found: {yaml_path}")
 
-        with open(yaml_path, "r") as f:
+        with open(yaml_path) as f:
             data = yaml.safe_load(f)
 
         if not isinstance(data, dict):
@@ -157,10 +157,7 @@ class PromptManager:
                     raise ValueError(
                         f"Each prompt in {yaml_path} must have 'name' and 'template' fields"
                     )
-                self.register(
-                    prompt_data["name"],
-                    prompt_data["template"].strip()
-                )
+                self.register(prompt_data["name"], prompt_data["template"].strip())
                 loaded += 1
         elif "name" in data and "template" in data:
             # Single prompt format: name/template at root level
@@ -168,8 +165,7 @@ class PromptManager:
             loaded = 1
         else:
             raise ValueError(
-                f"YAML {yaml_path} must have either 'name'+'template' fields "
-                "or a 'prompts' list"
+                f"YAML {yaml_path} must have either 'name'+'template' fields " "or a 'prompts' list"
             )
 
         return loaded
@@ -204,7 +200,7 @@ class PromptManager:
 
         return total_loaded
 
-    def get(self, name: str) -> Optional[PromptTemplate]:
+    def get(self, name: str) -> PromptTemplate | None:
         """
         Get a registered template by name.
 

@@ -5,13 +5,13 @@ Defines all data structures used across the application.
 """
 
 from datetime import datetime
-from enum import Enum
-from typing import Any, Optional
+from enum import StrEnum
+from typing import Any
 
 from pydantic import BaseModel, Field
 
 
-class MessageRole(str, Enum):
+class MessageRole(str, StrEnum):
     """Enum for message roles in a conversation."""
 
     USER = "user"
@@ -34,7 +34,7 @@ class Message(BaseModel):
     role: MessageRole
     content: str
     timestamp: datetime = Field(default_factory=datetime.utcnow)
-    metadata: Optional[dict[str, Any]] = None
+    metadata: dict[str, Any] | None = None
 
     model_config = {"use_enum_values": False}
 
@@ -69,7 +69,7 @@ class ToolCall(BaseModel):
     id: str
     function_name: str
     arguments: dict[str, Any]
-    result: Optional[str] = None
+    result: str | None = None
 
 
 class BridgeResponse(BaseModel):
@@ -86,11 +86,11 @@ class BridgeResponse(BaseModel):
     """
 
     text: str
-    raw_response: Optional[dict[str, Any]] = None
+    raw_response: dict[str, Any] | None = None
     tool_calls: list[ToolCall] = Field(default_factory=list)
-    tokens_used: Optional[int] = None
+    tokens_used: int | None = None
     finish_reason: str = "stop"  # stop, tool_use, length, error
-    metadata: Optional[dict[str, Any]] = None
+    metadata: dict[str, Any] | None = None
 
     def __str__(self) -> str:
         """Return a string representation of the response."""
@@ -115,7 +115,7 @@ class ConversationBuffer(BaseModel):
     """
 
     messages: list[Message] = Field(default_factory=list)
-    system_prompt: Optional[str] = None
+    system_prompt: str | None = None
     max_tokens: int = 4096
     current_tokens: int = 0
 
@@ -212,9 +212,9 @@ class LLMConfig(BaseModel):
 
     temperature: float = 0.7
     top_p: float = 0.9
-    max_tokens: Optional[int] = None
+    max_tokens: int | None = None
     stop_sequences: list[str] = Field(default_factory=list)
-    system_prompt: Optional[str] = None
+    system_prompt: str | None = None
 
     model_config = {
         "json_schema_extra": {

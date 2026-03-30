@@ -5,9 +5,10 @@ Defines the interface that all provider implementations must follow.
 """
 
 from abc import ABC, abstractmethod
-from typing import Any, AsyncGenerator, Generator, Optional
+from collections.abc import AsyncGenerator, Generator
+from typing import Any
 
-from .models import BridgeResponse, ConversationBuffer, LLMConfig, Message, MessageRole
+from .models import BridgeResponse, ConversationBuffer, LLMConfig
 
 
 class BaseLLMProvider(ABC):
@@ -44,7 +45,7 @@ class BaseLLMProvider(ABC):
         self,
         prompt: str,
         history: ConversationBuffer,
-        config: Optional[LLMConfig] = None,
+        config: LLMConfig | None = None,
     ) -> BridgeResponse:
         """
         Generate a response from the LLM.
@@ -67,7 +68,7 @@ class BaseLLMProvider(ABC):
         self,
         prompt: str,
         history: ConversationBuffer,
-        config: Optional[LLMConfig] = None,
+        config: LLMConfig | None = None,
     ) -> Generator[BridgeResponse, None, None]:
         """
         Generate a response from the LLM with streaming.
@@ -91,7 +92,7 @@ class BaseLLMProvider(ABC):
         self,
         prompt: str,
         history: ConversationBuffer,
-        config: Optional[LLMConfig] = None,
+        config: LLMConfig | None = None,
     ) -> BridgeResponse:
         """
         Async version of generate.
@@ -113,7 +114,7 @@ class BaseLLMProvider(ABC):
         self,
         prompt: str,
         history: ConversationBuffer,
-        config: Optional[LLMConfig] = None,
+        config: LLMConfig | None = None,
     ) -> AsyncGenerator[BridgeResponse, None]:
         """
         Async version of generate_stream.
@@ -148,7 +149,7 @@ class BaseLLMProvider(ABC):
         """
         return True
 
-    def get_model_info(self) -> Optional[dict[str, Any]]:
+    def get_model_info(self) -> dict[str, Any] | None:
         """
         Get information about the current model.
 

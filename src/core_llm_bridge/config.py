@@ -6,7 +6,7 @@ All settings are loaded from .env files or environment variables.
 
 Usage:
     from core_llm_bridge.config import settings, logger
-    
+
     logger.info(f"Using Ollama at: {settings.ollama_base_url}")
     print(f"Log level: {settings.log_level}")
 """
@@ -17,7 +17,6 @@ from pathlib import Path
 from loguru import logger
 from pydantic_settings import BaseSettings
 
-
 # Project root: src/llm_bridge/config.py -> 3 levels up
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 
@@ -25,10 +24,10 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 class Settings(BaseSettings):
     """
     Application settings loaded from environment variables.
-    
+
     Automatically loads from .env files in this order:
     1. .env (or .env.local for local overrides)
-    
+
     Configuration:
         case_sensitive: False - Environment variables are case-insensitive
         extra: allow - Ignore extra environment variables
@@ -122,9 +121,7 @@ def configure_logger(
             sys.stderr,
             level=level,
             format=(
-                "<green>{time:HH:mm:ss}</green> | "
-                "<level>{level: <8}</level> | "
-                "{message}"
+                "<green>{time:HH:mm:ss}</green> | " "<level>{level: <8}</level> | " "{message}"
             ),
         )
 
@@ -139,4 +136,3 @@ __all__ = [
     "configure_logger",
     "PROJECT_ROOT",
 ]
-

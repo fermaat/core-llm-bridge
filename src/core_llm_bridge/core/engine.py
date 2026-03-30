@@ -5,12 +5,13 @@ The BridgeEngine is the primary class users interact with.
 It manages providers, conversation history, and coordinates all interactions.
 """
 
-from typing import Any, AsyncGenerator, Generator, Optional
+from collections.abc import AsyncGenerator, Generator
+from typing import Any
 
 from core_llm_bridge.config import logger
 
 from .base import BaseLLMProvider
-from .models import BridgeResponse, ConversationBuffer, LLMConfig, MessageRole, ToolCall
+from .models import BridgeResponse, ConversationBuffer, LLMConfig, ToolCall
 
 
 class BridgeEngine:
@@ -37,7 +38,7 @@ class BridgeEngine:
     def __init__(
         self,
         provider: BaseLLMProvider,
-        system_prompt: Optional[str] = None,
+        system_prompt: str | None = None,
         max_history_length: int = 10,
     ) -> None:
         """
@@ -118,7 +119,7 @@ class BridgeEngine:
     def chat(
         self,
         user_input: str,
-        config: Optional[LLMConfig] = None,
+        config: LLMConfig | None = None,
     ) -> BridgeResponse:
         """
         Send a message and get a response.
@@ -165,7 +166,7 @@ class BridgeEngine:
     def chat_stream(
         self,
         user_input: str,
-        config: Optional[LLMConfig] = None,
+        config: LLMConfig | None = None,
     ) -> Generator[BridgeResponse, None, None]:
         """
         Send a message and stream the response.
@@ -209,7 +210,7 @@ class BridgeEngine:
     async def chat_async(
         self,
         user_input: str,
-        config: Optional[LLMConfig] = None,
+        config: LLMConfig | None = None,
     ) -> BridgeResponse:
         """
         Async version of chat.
@@ -245,7 +246,7 @@ class BridgeEngine:
     async def chat_stream_async(
         self,
         user_input: str,
-        config: Optional[LLMConfig] = None,
+        config: LLMConfig | None = None,
     ) -> AsyncGenerator[BridgeResponse, None]:
         """
         Async version of chat_stream.

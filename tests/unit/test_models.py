@@ -1,15 +1,14 @@
 """Unit tests for core models."""
 
-import pytest
 from datetime import datetime
 
 from core_llm_bridge.core import (
+    BridgeResponse,
+    ConversationBuffer,
+    LLMConfig,
     Message,
     MessageRole,
-    ConversationBuffer,
-    BridgeResponse,
     ToolCall,
-    LLMConfig,
 )
 
 
