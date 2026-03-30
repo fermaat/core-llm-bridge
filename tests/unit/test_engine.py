@@ -69,7 +69,7 @@ class TestBridgeEngine:
     def test_invalid_provider(self) -> None:
         """Test creating engine with invalid provider."""
         with pytest.raises(ValueError):
-            BridgeEngine(provider="not-a-provider")  # type: ignore
+            BridgeEngine(provider="not-a-provider")  # type: ignore[arg-type]
 
     def test_set_system_prompt(self, engine: BridgeEngine) -> None:
         """Test setting system prompt."""
@@ -91,7 +91,7 @@ class TestBridgeEngine:
     def test_register_non_callable(self, engine: BridgeEngine) -> None:
         """Test registering non-callable raises error."""
         with pytest.raises(ValueError):
-            engine.register_tool("not-callable")  # type: ignore
+            engine.register_tool("not-callable")
 
     def test_chat(self, engine: BridgeEngine) -> None:
         """Test basic chat."""

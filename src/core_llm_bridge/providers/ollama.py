@@ -151,9 +151,12 @@ class OllamaProvider(BaseLLMProvider):
             Dictionary with model information or None if error
         """
         try:
-            response = self.client.get("/api/show", json={"name": self.model})
+            response = self.client.get("/api/show", params={"name": self.model})
             if response.status_code == 200:
-                return response.json()
+                model_info = response.json()
+                if isinstance(model_info, dict):
+                    return model_info
+                logger.warning("Model info response is not a dict")
             return None
         except Exception as e:
             logger.error(f"Error getting model info: {e}")

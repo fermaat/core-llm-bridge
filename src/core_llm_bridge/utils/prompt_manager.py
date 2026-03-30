@@ -212,12 +212,12 @@ class PromptManager:
         """
         return self.templates.get(name)
 
-    def render(self, name: str, **variables: Any) -> str:
+    def render(self, prompt_name: str, **variables: Any) -> str:
         """
         Render a template by name.
 
         Args:
-            name: Name of the template
+            prompt_name: Name of the template
             **variables: Variables to substitute
 
         Returns:
@@ -226,9 +226,9 @@ class PromptManager:
         Raises:
             ValueError: If template not found
         """
-        template = self.get(name)
+        template = self.get(prompt_name)
         if template is None:
-            raise ValueError(f"Template '{name}' not found")
+            raise ValueError(f"Template '{prompt_name}' not found")
 
         return template.render(**variables)
 

@@ -11,7 +11,7 @@ from typing import Any
 from pydantic import BaseModel, Field
 
 
-class MessageRole(str, StrEnum):
+class MessageRole(StrEnum):
     """Enum for message roles in a conversation."""
 
     USER = "user"

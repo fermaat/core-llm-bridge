@@ -6,6 +6,7 @@ Provides common fixtures and configuration for all tests in the project.
 
 import os
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -29,7 +30,7 @@ def test_data_dir(project_root: Path) -> Path:
 
 
 @pytest.fixture
-def mock_ollama_response() -> dict:
+def mock_ollama_response() -> dict[str, Any]:
     """Provide a mock Ollama API response for testing."""
     return {
         "model": "llama2",

@@ -39,6 +39,7 @@ dev = [
     "mypy>=1.0",
     "ruff>=0.1",
     "isort>=5.12",
+    "types-PyYAML>=6.0.12.20250915",
 ]
 
 docs = [
@@ -90,6 +91,10 @@ strict_equality = true
 module = "tests.*"
 disallow_untyped_defs = false
 disallow_incomplete_defs = false
+
+[[tool.mypy.overrides]]
+module = "yaml.*"
+ignore_missing_imports = true
 
 [tool.black]
 line-length = 100
