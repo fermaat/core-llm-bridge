@@ -28,6 +28,7 @@ dependencies = [
     "loguru>=0.7",
     "pyyaml>=6.0.3",
     "openai>=2.30.0",
+    "git+https://github.com/fermaat/core-llm-bridge.git",
 ]
 
 [project.optional-dependencies]
@@ -55,7 +56,7 @@ Documentation = "https://github.com/yourusername/llm-bridge#readme"
 Issues = "https://github.com/yourusername/llm-bridge/issues"
 
 [tool.pdm]
-distribution = false
+distribution = true
 
 [tool.pdm.build]
 includes = ["src/core_llm_bridge"]

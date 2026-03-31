@@ -31,8 +31,8 @@ pdm install -d  # install dev dependencies
 ### Basic Usage
 
 ```python
-from llm_bridge import BridgeEngine
-from llm_bridge.providers import OllamaProvider
+from core_llm_bridge import BridgeEngine
+from core_llm_bridge.providers import OllamaProvider
 
 # Initialize provider
 provider = OllamaProvider(model="llama2")
@@ -91,7 +91,7 @@ LOG_LEVEL=INFO
 
 ```
 llm-bridge/
-├── src/llm_bridge/
+├── src/core_llm_bridge/
 │   ├── __init__.py
 │   ├── config.py              # Configuration management
 │   ├── core/
@@ -187,32 +187,6 @@ See [examples/streaming.py](examples/streaming.py)
 
 See [examples/with_tools.py](examples/with_tools.py)
 
-## API Documentation
-
-Full API documentation is available in the code docstrings and can be generated with:
-
-```bash
-pdm run sphinx-build -b html docs docs/_build
-```
-
-## Roadmap
-
-- [x] Phase 1: Project setup & configuration
-- [ ] Phase 2: Core models & abstractions
-- [ ] Phase 3: Ollama provider
-- [ ] Phase 4: Testing infrastructure
-- [ ] Phase 5: Documentation & examples
-- [ ] Phase 6: PyPI publishing
-- [ ] Future: OpenAI/Anthropic providers
-
-## Contributing
-
-Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Support
-
-For issues, questions, or suggestions, please open an issue on [GitHub](https://github.com/yourusername/llm-bridge/issues).
