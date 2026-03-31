@@ -12,8 +12,8 @@ class MockProvider(BaseLLMProvider):
     def generate(
         self,
         prompt: str,
-        _history: ConversationBuffer,
-        _config: LLMConfig | None = None,
+        history: ConversationBuffer,
+        config: LLMConfig | None = None,
     ) -> BridgeResponse:
         """Return a mock response."""
         return BridgeResponse(
@@ -24,8 +24,8 @@ class MockProvider(BaseLLMProvider):
     def generate_stream(
         self,
         prompt: str,
-        _history: ConversationBuffer,
-        _config: LLMConfig | None = None,
+        history: ConversationBuffer,
+        config: LLMConfig | None = None,
     ):
         """Yield mock response in chunks."""
         response_text = f"Mock response to: {prompt}"

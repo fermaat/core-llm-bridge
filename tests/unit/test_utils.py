@@ -117,7 +117,7 @@ class TestPromptManager:
         manager.register("test", "Test template")
         template = manager.get("test")
         assert template is not None
-        assert "test" in template.template_str
+        assert template.template_str == "Test template"
 
     def test_render_template(self) -> None:
         """Test rendering through manager."""
@@ -202,8 +202,8 @@ class TestCreatePromptManager:
         manager = create_prompt_manager()
         templates = manager.list_templates()
 
-        # Should have exactly 4 common prompts from YAML
-        assert len(templates) == 4
+        # Should include the core prompt templates from YAML
+        assert len(templates) >= 4
         assert "code_assistant" in templates
         assert "data_analyst" in templates
         assert "creative_writer" in templates

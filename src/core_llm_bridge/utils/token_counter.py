@@ -102,7 +102,7 @@ class TokenCounter:
 
     @staticmethod
     def will_fit_in_context(
-        text: str, max_tokens: int, model: str = "default", safety_margin: int = 100
+        text: str, max_tokens: int, model: str = "default", safety_margin: int = 0
     ) -> bool:
         """
         Check if text will fit within context window.
@@ -163,6 +163,11 @@ class TokenCounter:
 
         # Calculate how many words we can keep
         max_words = int(available_tokens / multiplier)
+
+        # Ensure the truncation logic never returns a negative slice length
+        if max_words <= 0:
+            max_words = 1
+
         truncated = " ".join(words[:max_words])
 
         return truncated
