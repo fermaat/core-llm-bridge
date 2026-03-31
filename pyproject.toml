@@ -28,7 +28,6 @@ dependencies = [
     "loguru>=0.7",
     "pyyaml>=6.0.3",
     "openai>=2.30.0",
-    "git+https://github.com/fermaat/core-llm-bridge.git",
 ]
 
 [project.optional-dependencies]
