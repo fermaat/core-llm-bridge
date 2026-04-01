@@ -57,6 +57,7 @@ from .exceptions import (
     ProviderError,
     TokenLimitError,
 )
+from .providers import OllamaProvider, create_provider
 
 # Utilities
 from .utils import (
@@ -76,6 +77,8 @@ __all__ = [
     "ToolCall",
     "LLMConfig",
     "BaseLLMProvider",
+    "OllamaProvider",
+    "create_provider",
     # Config
     "settings",
     "logger",

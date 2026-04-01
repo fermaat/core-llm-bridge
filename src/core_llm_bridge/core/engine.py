@@ -125,20 +125,25 @@ class BridgeEngine:
         else:
             self.internal_state = summary
 
-    def prune_history(self) -> None:
+    def _needs_pruning(self, upcoming_messages: int = 2) -> bool:
+        """Return whether history should be pruned before adding new messages."""
+        return len(self.history) + upcoming_messages > self.max_history_length
+
+    def prune_history(self, keep_last_n: int | None = None) -> None:
         """Prune old messages from history and update internal state."""
-        if len(self.history) < self.max_history_length:
+        if keep_last_n is None:
+            keep_last_n = self.max_history_length
+        keep_last_n = max(0, keep_last_n)
+
+        if len(self.history) <= keep_last_n:
             return
 
-        removed_messages: list[Message] = []
-        remove_count = max(
-            self.history_prune_step,
-            len(self.history) - self.max_history_length + 2,
-        )
-
-        for _ in range(remove_count):
-            if self.history.messages:
-                removed_messages.append(self.history.messages.pop(0))
+        if keep_last_n:
+            removed_messages = self.history.messages[:-keep_last_n]
+            self.history.messages = self.history.messages[-keep_last_n:]
+        else:
+            removed_messages = self.history.messages[:]
+            self.history.messages = []
 
         if removed_messages:
             self._update_internal_state(removed_messages)
@@ -169,9 +174,9 @@ class BridgeEngine:
         """
         logger.debug(f"Chat: {user_input[:50]}...")
 
-        # Check context window
-        if len(self.history) >= self.max_history_length:
-            self.prune_history()
+        # Check context window for upcoming message additions
+        if self._needs_pruning():
+            self.prune_history(keep_last_n=max(self.max_history_length - 2, 0))
 
         # Add user message to history
         self.history.add_user_message(user_input)
@@ -214,9 +219,9 @@ class BridgeEngine:
         """
         logger.debug(f"Chat stream: {user_input[:50]}...")
 
-        # Check context window
-        if len(self.history) >= self.max_history_length:
-            self.prune_history()
+        # Check context window for upcoming message additions
+        if self._needs_pruning():
+            self.prune_history(keep_last_n=max(self.max_history_length - 2, 0))
 
         # Add user message to history
         self.history.add_user_message(user_input)
@@ -254,9 +259,9 @@ class BridgeEngine:
         """
         logger.debug(f"Async chat: {user_input[:50]}...")
 
-        # Check context window
-        if len(self.history) >= self.max_history_length:
-            self.prune_history()
+        # Check context window for upcoming message additions
+        if self._needs_pruning():
+            self.prune_history(keep_last_n=max(self.max_history_length - 2, 0))
 
         # Add user message to history
         self.history.add_user_message(user_input)
@@ -290,9 +295,9 @@ class BridgeEngine:
         """
         logger.debug(f"Async chat stream: {user_input[:50]}...")
 
-        # Check context window
-        if len(self.history) >= self.max_history_length:
-            self.prune_history()
+        # Check context window for upcoming message additions
+        if self._needs_pruning():
+            self.prune_history(keep_last_n=max(self.max_history_length - 2, 0))
 
         # Add user message to history
         self.history.add_user_message(user_input)

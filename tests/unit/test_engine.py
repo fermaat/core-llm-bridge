@@ -116,6 +116,14 @@ class TestBridgeEngine:
         assert engine.internal_state is not None
         assert "user:" in engine.internal_state or "assistant:" in engine.internal_state
 
+    def test_chat_does_not_exceed_max_history_length(self, engine: BridgeEngine) -> None:
+        """Test that chat prunes before appending new messages."""
+        engine.max_history_length = 5
+        for i in range(3):
+            engine.chat(f"Message {i}")
+
+        assert len(engine.history) <= engine.max_history_length
+
     def test_chat_stream(self, engine: BridgeEngine) -> None:
         """Test streaming chat."""
         chunks = list(engine.chat_stream("Hello"))

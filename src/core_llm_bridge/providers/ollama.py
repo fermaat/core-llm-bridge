@@ -95,9 +95,12 @@ class OllamaProvider(BaseLLMProvider):
 
         logger.debug(f"OllamaProvider initialized: {self.model} at {self.base_url}")
 
-    def validate_connection(self) -> bool:
+    def validate_connection(self, raise_on_error: bool = False) -> bool:
         """
         Validate that Ollama is reachable and has the model.
+
+        Args:
+            raise_on_error: If True, raise a provider-specific exception on failure.
 
         Returns:
             True if connection is valid and model exists, False otherwise
@@ -106,41 +109,51 @@ class OllamaProvider(BaseLLMProvider):
             >>> provider = OllamaProvider(model="llama2")
             >>> if provider.validate_connection():
             ...     print("Ready!")
-            ... else:
+            >>> else:
             ...     print("Ollama not running or model not found")
         """
         try:
-            # Try to get available models
             response = self.client.get("/api/tags", timeout=5)
-            if response.status_code != 200:
-                logger.error(f"Ollama API error: {response.status_code}")
-                return False
+            response.raise_for_status()
 
             models = response.json().get("models", [])
             model_names = [m.get("name", "") for m in models]
 
-            # Check if our model is available
             model_found = any(self.model in name for name in model_names)
 
             if not model_found:
-                logger.error(f"Model '{self.model}' not found in Ollama")
-                logger.error(f"Available models: {model_names}")
+                message = (
+                    f"Model '{self.model}' not found in Ollama. "
+                    f"Available models: {model_names}"
+                )
+                if raise_on_error:
+                    raise OllamaModelNotFoundError(message)
+                logger.error(message)
                 return False
 
             logger.debug(f"Connected to Ollama. Model '{self.model}' found.")
             return True
 
-        except httpx.ConnectError:
-            logger.error(
+        except httpx.TimeoutException as exc:
+            message = f"Timeout connecting to Ollama at {self.base_url}"
+            if raise_on_error:
+                raise OllamaTimeoutError(message) from exc
+            logger.error(message)
+            return False
+        except httpx.RequestError as exc:
+            message = (
                 f"Cannot connect to Ollama at {self.base_url}. "
                 "Make sure Ollama is running: ollama serve"
             )
+            if raise_on_error:
+                raise OllamaConnectionError(message) from exc
+            logger.error(message)
             return False
-        except httpx.TimeoutException:
-            logger.error(f"Timeout connecting to Ollama at {self.base_url}")
-            return False
-        except Exception as e:
-            logger.error(f"Error validating Ollama connection: {e}")
+        except Exception as exc:
+            message = f"Error validating Ollama connection: {exc}"
+            if raise_on_error:
+                raise OllamaConnectionError(message) from exc
+            logger.error(message)
             return False
 
     def get_model_info(self) -> dict[str, Any] | None:
@@ -184,11 +197,7 @@ class OllamaProvider(BaseLLMProvider):
             OllamaModelNotFoundError: If model not found
             OllamaTimeoutError: If request times out
         """
-        if not self.validate_connection():
-            raise OllamaConnectionError(
-                f"Cannot connect to Ollama at {self.base_url}. "
-                "Make sure it's running: ollama serve"
-            )
+        self.validate_connection(raise_on_error=True)
 
         # Get messages in API format
         messages = history.get_messages_for_api()
@@ -282,11 +291,7 @@ class OllamaProvider(BaseLLMProvider):
             OllamaConnectionError: If cannot connect to Ollama
             OllamaModelNotFoundError: If model not found
         """
-        if not self.validate_connection():
-            raise OllamaConnectionError(
-                f"Cannot connect to Ollama at {self.base_url}. "
-                "Make sure it's running: ollama serve"
-            )
+        self.validate_connection(raise_on_error=True)
 
         # Get messages in API format
         messages = history.get_messages_for_api()
