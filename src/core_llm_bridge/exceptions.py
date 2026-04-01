@@ -15,6 +15,12 @@ class ProviderError(LLMBridgeError):
     pass
 
 
+class ProviderNotAvailableError(ProviderError):
+    """Exception raised when the requested provider is unavailable."""
+
+    pass
+
+
 class OllamaError(ProviderError):
     """Exception raised for Ollama-specific errors."""
 
@@ -60,6 +66,7 @@ class InvalidMessageError(LLMBridgeError):
 __all__ = [
     "LLMBridgeError",
     "ProviderError",
+    "ProviderNotAvailableError",
     "OllamaError",
     "OllamaConnectionError",
     "OllamaTimeoutError",

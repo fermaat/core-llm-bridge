@@ -11,7 +11,7 @@ from typing import Any
 from core_llm_bridge.config import logger
 
 from .base import BaseLLMProvider
-from .models import BridgeResponse, ConversationBuffer, LLMConfig, ToolCall
+from .models import BridgeResponse, ConversationBuffer, LLMConfig, Message, ToolCall
 
 
 class BridgeEngine:
@@ -40,6 +40,7 @@ class BridgeEngine:
         provider: BaseLLMProvider,
         system_prompt: str | None = None,
         max_history_length: int = 10,
+        history_prune_step: int = 2,
     ) -> None:
         """
         Initialize the BridgeEngine.
@@ -61,6 +62,8 @@ class BridgeEngine:
 
         # Initialize conversation buffer
         self.history = ConversationBuffer(system_prompt=system_prompt)
+        self.history_prune_step = history_prune_step
+        self.internal_state: str | None = None
 
         # Tool registry
         self._tools: dict[str, Any] = {}
@@ -109,12 +112,39 @@ class BridgeEngine:
     def clear_history(self) -> None:
         """Clear the conversation history."""
         self.history.clear()
+        self.internal_state = None
         logger.debug("Conversation history cleared")
 
+    def _update_internal_state(self, removed_messages: list[Message]) -> None:
+        """Update an internal state summary from removed messages."""
+        summary = " | ".join(
+            f"{message.role.value}: {message.content}" for message in removed_messages
+        )
+        if self.internal_state:
+            self.internal_state += f"\n{summary}"
+        else:
+            self.internal_state = summary
+
     def prune_history(self) -> None:
-        """Prune old messages from history."""
-        self.history.prune_old_messages(keep_last_n=self.max_history_length)
-        logger.debug(f"History pruned to last {self.max_history_length} messages")
+        """Prune old messages from history and update internal state."""
+        if len(self.history) < self.max_history_length:
+            return
+
+        removed_messages: list[Message] = []
+        remove_count = max(
+            self.history_prune_step,
+            len(self.history) - self.max_history_length + 2,
+        )
+
+        for _ in range(remove_count):
+            if self.history.messages:
+                removed_messages.append(self.history.messages.pop(0))
+
+        if removed_messages:
+            self._update_internal_state(removed_messages)
+            logger.debug(
+                f"History pruned by removing {len(removed_messages)} old messages"
+            )
 
     def chat(
         self,
@@ -314,6 +344,7 @@ class BridgeEngine:
             "provider": str(self.provider),
             "has_system_prompt": self.system_prompt is not None,
             "registered_tools": list(self._tools.keys()),
+            "internal_state": self.internal_state,
         }
 
     def __repr__(self) -> str:

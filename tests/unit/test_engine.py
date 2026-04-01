@@ -107,6 +107,15 @@ class TestBridgeEngine:
         # Should have at least added user message and assistant response
         assert len(engine.history) >= initial_count + 2
 
+    def test_history_pruning_updates_internal_state(self, engine: BridgeEngine) -> None:
+        """Test that history pruning removes old messages and tracks internal state."""
+        for i in range(12):
+            engine.chat(f"Message {i}")
+
+        assert len(engine.history) <= engine.max_history_length
+        assert engine.internal_state is not None
+        assert "user:" in engine.internal_state or "assistant:" in engine.internal_state
+
     def test_chat_stream(self, engine: BridgeEngine) -> None:
         """Test streaming chat."""
         chunks = list(engine.chat_stream("Hello"))
