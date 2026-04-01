@@ -33,8 +33,7 @@ def example_1_load_default_prompts():
     print("\n📝 Code Assistant Prompt:")
     print("-" * 40)
     result = manager.render(
-        "code_assistant",
-        query="Write a Python function to calculate Fibonacci numbers"
+        "code_assistant", query="Write a Python function to calculate Fibonacci numbers"
     )
     print(result[:200] + "...")
 
@@ -50,12 +49,12 @@ def example_2_custom_prompts():
     # Register custom prompts
     manager.register(
         "translator",
-        "You are a professional translator. Translate the following to $language:\n\n$text"
+        "You are a professional translator. Translate the following to $language:\n\n$text",
     )
 
     manager.register(
         "proofreader",
-        "You are a professional proofreader. Fix grammar and style issues:\n\n$content"
+        "You are a professional proofreader. Fix grammar and style issues:\n\n$content",
     )
 
     print(f"\n✅ Registered {len(manager.list_templates())} custom prompts:")
@@ -65,18 +64,13 @@ def example_2_custom_prompts():
     # Render custom prompts
     print("\n📝 Translator Prompt:")
     print("-" * 40)
-    translator = manager.render(
-        "translator",
-        language="Spanish",
-        text="Hello, how are you today?"
-    )
+    translator = manager.render("translator", language="Spanish", text="Hello, how are you today?")
     print(translator)
 
     print("\n📝 Proofreader Prompt:")
     print("-" * 40)
     proofreader = manager.render(
-        "proofreader",
-        content="teh quick brown fox jumps ovver the lazi dog"
+        "proofreader", content="teh quick brown fox jumps ovver the lazi dog"
     )
     print(proofreader)
 

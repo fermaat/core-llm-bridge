@@ -52,10 +52,7 @@ def main() -> None:
 
         # Validate connection
         if not provider.validate_connection():
-            logger.error(
-                "Cannot connect to Ollama. "
-                "Make sure it's running: ollama serve"
-            )
+            logger.error("Cannot connect to Ollama. " "Make sure it's running: ollama serve")
             return
 
         # Create engine

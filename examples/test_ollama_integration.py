@@ -150,10 +150,7 @@ def test_with_prompts():
         config = LLMConfig(temperature=0.5, max_tokens=300)
 
         # Get a prompt
-        system_prompt = prompt_manager.render(
-            "code_assistant",
-            query="General assistance"
-        )
+        system_prompt = prompt_manager.render("code_assistant", query="General assistance")
 
         engine = BridgeEngine(
             provider=provider,

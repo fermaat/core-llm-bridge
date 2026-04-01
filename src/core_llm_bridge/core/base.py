@@ -133,9 +133,12 @@ class BaseLLMProvider(ABC):
         for response in self.generate_stream(prompt, history, config):
             yield response
 
-    def validate_connection(self) -> bool:
+    def validate_connection(self, raise_on_error: bool = False) -> bool:
         """
         Validate that the provider can be reached.
+
+        Args:
+            raise_on_error: If True, raise provider-specific errors instead of returning False.
 
         Should attempt a simple health check or connection test.
 
@@ -148,6 +151,18 @@ class BaseLLMProvider(ABC):
             ...     print("Connected!")
         """
         return True
+
+    def health_check(self, raise_on_error: bool = False) -> bool:
+        """
+        Check that the provider is healthy and ready to serve requests.
+
+        Args:
+            raise_on_error: If True, raise provider-specific errors on failure.
+
+        Returns:
+            True if the provider is healthy, False otherwise
+        """
+        return self.validate_connection(raise_on_error=raise_on_error)
 
     def get_model_info(self) -> dict[str, Any] | None:
         """

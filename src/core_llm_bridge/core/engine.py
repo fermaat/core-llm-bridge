@@ -9,6 +9,7 @@ from collections.abc import AsyncGenerator, Generator
 from typing import Any
 
 from core_llm_bridge.config import logger
+from core_llm_bridge.exceptions import LLMProviderError, ProviderError
 
 from .base import BaseLLMProvider
 from .models import BridgeResponse, ConversationBuffer, LLMConfig, Message, ToolCall
@@ -125,6 +126,14 @@ class BridgeEngine:
         else:
             self.internal_state = summary
 
+    def _ensure_provider_available(self) -> None:
+        """Validate the provider before sending a request."""
+        try:
+            if not self.provider.health_check():
+                raise LLMProviderError("LLM provider health check failed")
+        except ProviderError as exc:
+            raise LLMProviderError("LLM provider unavailable") from exc
+
     def _needs_pruning(self, upcoming_messages: int = 2) -> bool:
         """Return whether history should be pruned before adding new messages."""
         return len(self.history) + upcoming_messages > self.max_history_length
@@ -172,6 +181,8 @@ class BridgeEngine:
         """
         logger.debug(f"Chat: {user_input[:50]}...")
 
+        self._ensure_provider_available()
+
         # Check context window for upcoming message additions
         if self._needs_pruning():
             self.prune_history(keep_last_n=max(self.max_history_length - 2, 0))
@@ -217,6 +228,8 @@ class BridgeEngine:
         """
         logger.debug(f"Chat stream: {user_input[:50]}...")
 
+        self._ensure_provider_available()
+
         # Check context window for upcoming message additions
         if self._needs_pruning():
             self.prune_history(keep_last_n=max(self.max_history_length - 2, 0))
@@ -257,6 +270,8 @@ class BridgeEngine:
         """
         logger.debug(f"Async chat: {user_input[:50]}...")
 
+        self._ensure_provider_available()
+
         # Check context window for upcoming message additions
         if self._needs_pruning():
             self.prune_history(keep_last_n=max(self.max_history_length - 2, 0))
@@ -292,6 +307,8 @@ class BridgeEngine:
             BridgeResponse objects with streaming tokens
         """
         logger.debug(f"Async chat stream: {user_input[:50]}...")
+
+        self._ensure_provider_available()
 
         # Check context window for upcoming message additions
         if self._needs_pruning():

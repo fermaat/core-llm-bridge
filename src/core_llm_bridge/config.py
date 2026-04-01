@@ -52,7 +52,7 @@ class Settings(BaseSettings):
     # ========== Ollama Provider Configuration ==========
     ollama_base_url: str = "http://localhost:11434"
     ollama_timeout: int = 300  # seconds
-    ollama_default_model: str = "llama2"
+    ollama_default_model: str = "gemma3:4b"#"llama2"
 
     # ========== LLM Settings ==========
     max_context_tokens: int = 4096
