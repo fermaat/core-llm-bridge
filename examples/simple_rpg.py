@@ -14,12 +14,13 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from core_llm_bridge import BridgeEngine
-from core_llm_bridge.config import logger
+from core_llm_bridge.config import configure_logger, logger
 from core_llm_bridge.exceptions import LLMProviderError
 from core_llm_bridge.providers import OllamaProvider
 
 
 def main() -> None:
+    configure_logger()
     logger.info("Starting simple RPG example...")
 
     provider = OllamaProvider()
@@ -51,7 +52,7 @@ def main() -> None:
 
         try:
             response = bridge.chat(player_input)
-            print(f"\n{response.text}\n")
+            logger.info(response.text)
         except LLMProviderError as exc:
             logger.error(f"Provider error during chat: {exc}")
             break

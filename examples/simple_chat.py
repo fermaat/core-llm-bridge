@@ -19,7 +19,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from core_llm_bridge import BridgeEngine
-from core_llm_bridge.config import logger
+from core_llm_bridge.config import configure_logger, logger
 from core_llm_bridge.providers import OllamaProvider
 
 
@@ -27,6 +27,8 @@ def main() -> None:
     """Run a simple chat session with the LLM."""
     try:
         logger.info("Starting simple chat example...")
+
+        configure_logger()
 
         # Initialize provider
         provider = OllamaProvider(model="llama2")
@@ -52,7 +54,7 @@ def main() -> None:
 
             logger.debug(f"Sending: {user_input}")
             response = bridge.chat(user_input)
-            print(f"\nAssistant: {response.text}\n")
+            logger.info(f"Assistant: {response.text}")
 
     except Exception as e:
         logger.error(f"Error in simple chat: {e}", exc_info=True)

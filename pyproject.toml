@@ -1,6 +1,6 @@
 [project]
 name = "core-llm-bridge"
-version = "1.0.1"
+version = "1.0.2"
 description = "Default template for PDM package"
 authors = [
     {name = "Your Name", email = "your.email@example.com"},
@@ -58,7 +58,7 @@ Issues = "https://github.com/yourusername/llm-bridge/issues"
 distribution = true
 
 [tool.pdm.build]
-includes = ["src/core_llm_bridge"]
+includes = ["src/core_llm_bridge", "src/llm_bridge"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
