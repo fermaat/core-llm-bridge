@@ -147,9 +147,7 @@ class BridgeEngine:
 
         if removed_messages:
             self._update_internal_state(removed_messages)
-            logger.debug(
-                f"History pruned by removing {len(removed_messages)} old messages"
-            )
+            logger.debug(f"History pruned by removing {len(removed_messages)} old messages")
 
     def chat(
         self,

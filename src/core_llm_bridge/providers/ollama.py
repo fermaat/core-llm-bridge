@@ -123,8 +123,7 @@ class OllamaProvider(BaseLLMProvider):
 
             if not model_found:
                 message = (
-                    f"Model '{self.model}' not found in Ollama. "
-                    f"Available models: {model_names}"
+                    f"Model '{self.model}' not found in Ollama. " f"Available models: {model_names}"
                 )
                 if raise_on_error:
                     raise OllamaModelNotFoundError(message)

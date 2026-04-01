@@ -43,6 +43,4 @@ def create_provider(name: str, **kwargs: Any) -> BaseLLMProvider:
         return _PROVIDERS[normalized](**kwargs)
 
     supported = ", ".join(get_supported_providers())
-    raise ProviderNotAvailableError(
-        f"Unknown provider '{name}'. Supported providers: {supported}"
-    )
+    raise ProviderNotAvailableError(f"Unknown provider '{name}'. Supported providers: {supported}")

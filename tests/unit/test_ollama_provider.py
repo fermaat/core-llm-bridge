@@ -20,7 +20,9 @@ def test_validate_connection_raises_timeout(monkeypatch: pytest.MonkeyPatch) -> 
         provider.validate_connection(raise_on_error=True)
 
 
-def test_generate_raises_connection_error_when_ollama_unreachable(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_generate_raises_connection_error_when_ollama_unreachable(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     provider = OllamaProvider(model="test-model")
 
     def fake_get(*args, **kwargs):
