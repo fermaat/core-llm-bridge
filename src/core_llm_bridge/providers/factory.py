@@ -5,10 +5,14 @@ from typing import Any
 from core_llm_bridge.core.base import BaseLLMProvider
 from core_llm_bridge.exceptions import ProviderNotAvailableError
 
+from .anthropic import AnthropicProvider
 from .ollama import OllamaProvider
+from .openai import OpenAIProvider
 
 _PROVIDERS: dict[str, type[BaseLLMProvider]] = {
     "ollama": OllamaProvider,
+    "anthropic": AnthropicProvider,
+    "openai": OpenAIProvider,
 }
 
 

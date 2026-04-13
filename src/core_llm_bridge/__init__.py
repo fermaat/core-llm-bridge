@@ -57,7 +57,7 @@ from .exceptions import (
     ProviderError,
     TokenLimitError,
 )
-from .providers import OllamaProvider, create_provider
+from .providers import AnthropicProvider, OllamaProvider, OpenAIProvider, create_provider
 
 # Utilities
 from .utils import (
@@ -78,6 +78,8 @@ __all__ = [
     "LLMConfig",
     "BaseLLMProvider",
     "OllamaProvider",
+    "AnthropicProvider",
+    "OpenAIProvider",
     "create_provider",
     # Config
     "settings",

@@ -54,6 +54,17 @@ class Settings(BaseSettings):
     ollama_timeout: int = 300  # seconds
     ollama_default_model: str = "gemma3:4b"  # "llama2"
 
+    # ========== Anthropic Provider Configuration ==========
+    anthropic_api_key: str = ""
+    anthropic_default_model: str = "claude-sonnet-4-6"
+    anthropic_timeout: int = 300  # seconds
+
+    # ========== OpenAI Provider Configuration ==========
+    openai_api_key: str = ""
+    openai_default_model: str = "gpt-4o"
+    openai_base_url: str = ""  # leave empty for default OpenAI endpoint
+    openai_timeout: int = 300  # seconds
+
     # ========== LLM Settings ==========
     max_context_tokens: int = 4096
     token_safety_margin: int = 100  # Reserve tokens for output
