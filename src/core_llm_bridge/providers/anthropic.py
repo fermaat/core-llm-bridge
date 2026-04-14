@@ -171,9 +171,7 @@ class AnthropicProvider(BaseLLMProvider):
 
     def _to_bridge_response(self, message: anthropic.types.Message) -> BridgeResponse:
         """Convert an Anthropic Message to BridgeResponse."""
-        text = "".join(
-            block.text for block in message.content if hasattr(block, "text")
-        )
+        text = "".join(block.text for block in message.content if hasattr(block, "text"))
         tokens_used = (message.usage.input_tokens or 0) + (message.usage.output_tokens or 0)
         finish_reason = message.stop_reason or "stop"
         return BridgeResponse(
@@ -216,11 +214,11 @@ class AnthropicProvider(BaseLLMProvider):
         logger.debug(f"Sending request to Anthropic: {self.model}")
 
         try:
+            call_kwargs = {**({"system": system_prompt} if system_prompt else {}), **kwargs}
             message = self.client.messages.create(
                 model=self.model,
                 messages=messages,  # type: ignore[arg-type]
-                system=system_prompt or anthropic.NOT_GIVEN,
-                **kwargs,
+                **call_kwargs,
             )
             response = self._to_bridge_response(message)
             logger.debug(f"Anthropic response received: {response.tokens_used} tokens")
@@ -268,20 +266,19 @@ class AnthropicProvider(BaseLLMProvider):
         logger.debug(f"Sending streaming request to Anthropic: {self.model}")
 
         try:
+            call_kwargs = {**({"system": system_prompt} if system_prompt else {}), **kwargs}
             with self.client.messages.stream(
                 model=self.model,
                 messages=messages,  # type: ignore[arg-type]
-                system=system_prompt or anthropic.NOT_GIVEN,
-                **kwargs,
+                **call_kwargs,
             ) as stream:
                 for text_chunk in stream.text_stream:
                     yield BridgeResponse(text=text_chunk, finish_reason="incomplete")
 
                 # Final chunk with usage stats
                 final_message = stream.get_final_message()
-                tokens_used = (
-                    (final_message.usage.input_tokens or 0)
-                    + (final_message.usage.output_tokens or 0)
+                tokens_used = (final_message.usage.input_tokens or 0) + (
+                    final_message.usage.output_tokens or 0
                 )
                 yield BridgeResponse(
                     text="",
@@ -328,11 +325,11 @@ class AnthropicProvider(BaseLLMProvider):
         logger.debug(f"Sending async request to Anthropic: {self.model}")
 
         try:
+            call_kwargs = {**({"system": system_prompt} if system_prompt else {}), **kwargs}
             message = await self.async_client.messages.create(
                 model=self.model,
                 messages=messages,  # type: ignore[arg-type]
-                system=system_prompt or anthropic.NOT_GIVEN,
-                **kwargs,
+                **call_kwargs,
             )
             return self._to_bridge_response(message)
 
@@ -370,19 +367,18 @@ class AnthropicProvider(BaseLLMProvider):
         logger.debug(f"Sending async streaming request to Anthropic: {self.model}")
 
         try:
+            call_kwargs = {**({"system": system_prompt} if system_prompt else {}), **kwargs}
             async with self.async_client.messages.stream(
                 model=self.model,
                 messages=messages,  # type: ignore[arg-type]
-                system=system_prompt or anthropic.NOT_GIVEN,
-                **kwargs,
+                **call_kwargs,
             ) as stream:
                 async for text_chunk in stream.text_stream:
                     yield BridgeResponse(text=text_chunk, finish_reason="incomplete")
 
                 final_message = await stream.get_final_message()
-                tokens_used = (
-                    (final_message.usage.input_tokens or 0)
-                    + (final_message.usage.output_tokens or 0)
+                tokens_used = (final_message.usage.input_tokens or 0) + (
+                    final_message.usage.output_tokens or 0
                 )
                 yield BridgeResponse(
                     text="",

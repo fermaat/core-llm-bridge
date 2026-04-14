@@ -15,4 +15,4 @@ def test_create_ollama_provider() -> None:
 
 def test_create_unknown_provider_raises() -> None:
     with pytest.raises(ProviderNotAvailableError):
-        create_provider("openai")
+        create_provider("unknown_provider")

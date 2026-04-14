@@ -11,7 +11,7 @@ Requires:
 """
 
 from collections.abc import AsyncGenerator, Generator
-from typing import Any
+from typing import Any, cast
 
 import openai
 
@@ -148,13 +148,11 @@ class OpenAIProvider(BaseLLMProvider):
                 kwargs["stop"] = config.stop_sequences
         return kwargs
 
-    def _to_bridge_response(
-        self, completion: openai.types.chat.ChatCompletion
-    ) -> BridgeResponse:
+    def _to_bridge_response(self, completion: openai.types.chat.ChatCompletion) -> BridgeResponse:
         """Convert an OpenAI ChatCompletion to BridgeResponse."""
         choice = completion.choices[0]
         text = choice.message.content or ""
-        finish_reason = choice.finish_reason or "stop"
+        finish_reason = choice.finish_reason
         tokens_used = None
         if completion.usage:
             tokens_used = completion.usage.prompt_tokens + completion.usage.completion_tokens
@@ -200,11 +198,14 @@ class OpenAIProvider(BaseLLMProvider):
         logger.debug(f"Sending request to OpenAI: {self.model}")
 
         try:
-            completion = self.client.chat.completions.create(
-                model=self.model,
-                messages=messages,  # type: ignore[arg-type]
-                stream=False,
-                **kwargs,
+            completion = cast(
+                openai.types.chat.ChatCompletion,
+                self.client.chat.completions.create(
+                    model=self.model,
+                    messages=messages,  # type: ignore[arg-type]
+                    stream=False,
+                    **kwargs,
+                ),
             )
             response = self._to_bridge_response(completion)
             logger.debug(f"OpenAI response received: {response.tokens_used} tokens")
@@ -252,35 +253,27 @@ class OpenAIProvider(BaseLLMProvider):
         logger.debug(f"Sending streaming request to OpenAI: {self.model}")
 
         try:
-            with self.client.chat.completions.stream(
-                model=self.model,
-                messages=messages,  # type: ignore[arg-type]
-                **kwargs,
-            ) as stream:
-                for chunk in stream:
-                    delta = chunk.choices[0].delta if chunk.choices else None
-                    if delta and delta.content:
-                        yield BridgeResponse(text=delta.content, finish_reason="incomplete")
-
-                # Final chunk with usage
-                final = stream.get_final_completion()
-                tokens_used = None
-                if final.usage:
-                    tokens_used = (
-                        final.usage.prompt_tokens + final.usage.completion_tokens
-                    )
-                yield BridgeResponse(
-                    text="",
-                    finish_reason=final.choices[0].finish_reason or "stop",
-                    tokens_used=tokens_used,
-                    metadata={
-                        "model": final.model,
-                        "prompt_tokens": final.usage.prompt_tokens if final.usage else None,
-                        "completion_tokens": (
-                            final.usage.completion_tokens if final.usage else None
-                        ),
-                    },
-                )
+            stream = cast(
+                openai.Stream[openai.types.chat.ChatCompletionChunk],
+                self.client.chat.completions.create(
+                    model=self.model,
+                    messages=messages,  # type: ignore[arg-type]
+                    stream=True,
+                    **kwargs,
+                ),
+            )
+            finish_reason = "stop"
+            tokens_used = None
+            for chunk in stream:
+                choice = chunk.choices[0] if chunk.choices else None
+                if choice:
+                    if choice.delta.content:
+                        yield BridgeResponse(text=choice.delta.content, finish_reason="incomplete")
+                    if choice.finish_reason:
+                        finish_reason = choice.finish_reason
+                if chunk.usage:
+                    tokens_used = chunk.usage.prompt_tokens + chunk.usage.completion_tokens
+            yield BridgeResponse(text="", finish_reason=finish_reason, tokens_used=tokens_used)
 
         except openai.AuthenticationError as exc:
             raise OpenAIAuthError("Invalid OpenAI API key.") from exc
@@ -316,11 +309,14 @@ class OpenAIProvider(BaseLLMProvider):
         logger.debug(f"Sending async request to OpenAI: {self.model}")
 
         try:
-            completion = await self.async_client.chat.completions.create(
-                model=self.model,
-                messages=messages,  # type: ignore[arg-type]
-                stream=False,
-                **kwargs,
+            completion = cast(
+                openai.types.chat.ChatCompletion,
+                await self.async_client.chat.completions.create(
+                    model=self.model,
+                    messages=messages,  # type: ignore[arg-type]
+                    stream=False,
+                    **kwargs,
+                ),
             )
             return self._to_bridge_response(completion)
 
@@ -358,34 +354,27 @@ class OpenAIProvider(BaseLLMProvider):
         logger.debug(f"Sending async streaming request to OpenAI: {self.model}")
 
         try:
-            async with self.async_client.chat.completions.stream(
-                model=self.model,
-                messages=messages,  # type: ignore[arg-type]
-                **kwargs,
-            ) as stream:
-                async for chunk in stream:
-                    delta = chunk.choices[0].delta if chunk.choices else None
-                    if delta and delta.content:
-                        yield BridgeResponse(text=delta.content, finish_reason="incomplete")
-
-                final = await stream.get_final_completion()
-                tokens_used = None
-                if final.usage:
-                    tokens_used = (
-                        final.usage.prompt_tokens + final.usage.completion_tokens
-                    )
-                yield BridgeResponse(
-                    text="",
-                    finish_reason=final.choices[0].finish_reason or "stop",
-                    tokens_used=tokens_used,
-                    metadata={
-                        "model": final.model,
-                        "prompt_tokens": final.usage.prompt_tokens if final.usage else None,
-                        "completion_tokens": (
-                            final.usage.completion_tokens if final.usage else None
-                        ),
-                    },
-                )
+            stream = cast(
+                openai.AsyncStream[openai.types.chat.ChatCompletionChunk],
+                await self.async_client.chat.completions.create(
+                    model=self.model,
+                    messages=messages,  # type: ignore[arg-type]
+                    stream=True,
+                    **kwargs,
+                ),
+            )
+            finish_reason = "stop"
+            tokens_used = None
+            async for chunk in stream:
+                choice = chunk.choices[0] if chunk.choices else None
+                if choice:
+                    if choice.delta.content:
+                        yield BridgeResponse(text=choice.delta.content, finish_reason="incomplete")
+                    if choice.finish_reason:
+                        finish_reason = choice.finish_reason
+                if chunk.usage:
+                    tokens_used = chunk.usage.prompt_tokens + chunk.usage.completion_tokens
+            yield BridgeResponse(text="", finish_reason=finish_reason, tokens_used=tokens_used)
 
         except openai.AuthenticationError as exc:
             raise OpenAIAuthError("Invalid OpenAI API key.") from exc
