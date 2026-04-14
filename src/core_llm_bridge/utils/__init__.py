@@ -1,7 +1,8 @@
 """Utility functions and helpers."""
 
+from core_utils.token_counter import TokenCounter
+
 from .prompt_manager import PromptManager, PromptTemplate, create_prompt_manager
-from .token_counter import TokenCounter
 
 __all__ = [
     "TokenCounter",
