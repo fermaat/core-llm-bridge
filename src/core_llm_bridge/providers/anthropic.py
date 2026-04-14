@@ -15,6 +15,7 @@ import anthropic
 
 from core_llm_bridge.config import logger, settings
 from core_llm_bridge.exceptions import (
+    AnthropicAPIError,
     AnthropicAuthError,
     AnthropicConnectionError,
     AnthropicRateLimitError,
@@ -231,7 +232,7 @@ class AnthropicProvider(BaseLLMProvider):
         except anthropic.APIConnectionError as exc:
             raise AnthropicConnectionError("Cannot connect to the Anthropic API.") from exc
         except anthropic.APIStatusError as exc:
-            raise AnthropicConnectionError(
+            raise AnthropicAPIError(
                 f"Anthropic API error {exc.status_code}: {exc.message}"
             ) from exc
 
@@ -298,7 +299,7 @@ class AnthropicProvider(BaseLLMProvider):
         except anthropic.APIConnectionError as exc:
             raise AnthropicConnectionError("Cannot connect to the Anthropic API.") from exc
         except anthropic.APIStatusError as exc:
-            raise AnthropicConnectionError(
+            raise AnthropicAPIError(
                 f"Anthropic API error {exc.status_code}: {exc.message}"
             ) from exc
 
@@ -340,7 +341,7 @@ class AnthropicProvider(BaseLLMProvider):
         except anthropic.APIConnectionError as exc:
             raise AnthropicConnectionError("Cannot connect to the Anthropic API.") from exc
         except anthropic.APIStatusError as exc:
-            raise AnthropicConnectionError(
+            raise AnthropicAPIError(
                 f"Anthropic API error {exc.status_code}: {exc.message}"
             ) from exc
 
@@ -398,7 +399,7 @@ class AnthropicProvider(BaseLLMProvider):
         except anthropic.APIConnectionError as exc:
             raise AnthropicConnectionError("Cannot connect to the Anthropic API.") from exc
         except anthropic.APIStatusError as exc:
-            raise AnthropicConnectionError(
+            raise AnthropicAPIError(
                 f"Anthropic API error {exc.status_code}: {exc.message}"
             ) from exc
 

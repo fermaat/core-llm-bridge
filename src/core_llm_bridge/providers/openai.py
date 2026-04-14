@@ -17,6 +17,7 @@ import openai
 
 from core_llm_bridge.config import logger, settings
 from core_llm_bridge.exceptions import (
+    OpenAIAPIError,
     OpenAIAuthError,
     OpenAIConnectionError,
     OpenAIRateLimitError,
@@ -218,9 +219,7 @@ class OpenAIProvider(BaseLLMProvider):
         except openai.APIConnectionError as exc:
             raise OpenAIConnectionError("Cannot connect to the OpenAI API.") from exc
         except openai.APIStatusError as exc:
-            raise OpenAIConnectionError(
-                f"OpenAI API error {exc.status_code}: {exc.message}"
-            ) from exc
+            raise OpenAIAPIError(f"OpenAI API error {exc.status_code}: {exc.message}") from exc
 
     def generate_stream(
         self,
@@ -282,9 +281,7 @@ class OpenAIProvider(BaseLLMProvider):
         except openai.APIConnectionError as exc:
             raise OpenAIConnectionError("Cannot connect to the OpenAI API.") from exc
         except openai.APIStatusError as exc:
-            raise OpenAIConnectionError(
-                f"OpenAI API error {exc.status_code}: {exc.message}"
-            ) from exc
+            raise OpenAIAPIError(f"OpenAI API error {exc.status_code}: {exc.message}") from exc
 
     async def generate_async(
         self,
@@ -327,9 +324,7 @@ class OpenAIProvider(BaseLLMProvider):
         except openai.APIConnectionError as exc:
             raise OpenAIConnectionError("Cannot connect to the OpenAI API.") from exc
         except openai.APIStatusError as exc:
-            raise OpenAIConnectionError(
-                f"OpenAI API error {exc.status_code}: {exc.message}"
-            ) from exc
+            raise OpenAIAPIError(f"OpenAI API error {exc.status_code}: {exc.message}") from exc
 
     async def generate_stream_async(
         self,
@@ -383,9 +378,7 @@ class OpenAIProvider(BaseLLMProvider):
         except openai.APIConnectionError as exc:
             raise OpenAIConnectionError("Cannot connect to the OpenAI API.") from exc
         except openai.APIStatusError as exc:
-            raise OpenAIConnectionError(
-                f"OpenAI API error {exc.status_code}: {exc.message}"
-            ) from exc
+            raise OpenAIAPIError(f"OpenAI API error {exc.status_code}: {exc.message}") from exc
 
     def __repr__(self) -> str:
         return f"OpenAIProvider(model={self.model})"

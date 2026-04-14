@@ -75,6 +75,12 @@ class AnthropicAuthError(AnthropicError):
     pass
 
 
+class AnthropicAPIError(AnthropicError):
+    """Exception raised for unexpected Anthropic API responses (4xx/5xx not covered above)."""
+
+    pass
+
+
 class OpenAIError(ProviderError):
     """Exception raised for OpenAI-specific errors."""
 
@@ -95,6 +101,12 @@ class OpenAIRateLimitError(OpenAIError):
 
 class OpenAIAuthError(OpenAIError):
     """Exception raised when the OpenAI API key is invalid or missing."""
+
+    pass
+
+
+class OpenAIAPIError(OpenAIError):
+    """Exception raised for unexpected OpenAI API responses (4xx/5xx not covered above)."""
 
     pass
 
@@ -130,10 +142,12 @@ __all__ = [
     "AnthropicConnectionError",
     "AnthropicRateLimitError",
     "AnthropicAuthError",
+    "AnthropicAPIError",
     "OpenAIError",
     "OpenAIConnectionError",
     "OpenAIRateLimitError",
     "OpenAIAuthError",
+    "OpenAIAPIError",
     "ConfigurationError",
     "TokenLimitError",
     "InvalidMessageError",

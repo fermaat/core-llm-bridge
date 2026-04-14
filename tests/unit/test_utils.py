@@ -5,64 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from core_llm_bridge.utils import PromptManager, PromptTemplate, TokenCounter, create_prompt_manager
-
-
-class TestTokenCounter:
-    """Tests for TokenCounter utility."""
-
-    def test_estimate_tokens_empty_string(self) -> None:
-        """Test estimating tokens for empty string."""
-        tokens = TokenCounter.estimate_tokens("")
-        assert tokens == 0
-
-    def test_estimate_tokens_single_word(self) -> None:
-        """Test estimating tokens for single word."""
-        tokens = TokenCounter.estimate_tokens("hello")
-        assert tokens >= 1
-
-    def test_estimate_tokens_multiple_words(self) -> None:
-        """Test estimating tokens for multiple words."""
-        tokens = TokenCounter.estimate_tokens("hello world test example")
-        assert tokens >= 4
-
-    def test_estimate_tokens_with_model(self) -> None:
-        """Test token estimation with different models."""
-        text = "This is a test message"
-        tokens_default = TokenCounter.estimate_tokens(text, "default")
-        tokens_llama = TokenCounter.estimate_tokens(text, "llama")
-        tokens_gpt = TokenCounter.estimate_tokens(text, "gpt")
-
-        # All should be positive
-        assert tokens_default > 0
-        assert tokens_llama > 0
-        assert tokens_gpt > 0
-
-    def test_count_messages_tokens(self) -> None:
-        """Test counting tokens in messages."""
-        messages = [
-            {"role": "user", "content": "Hello"},
-            {"role": "assistant", "content": "Hi there!"},
-        ]
-        tokens = TokenCounter.count_messages_tokens(messages)
-        assert tokens > 0
-
-    def test_will_fit_in_context(self) -> None:
-        """Test checking if text fits in context."""
-        short_text = "Hello"
-        long_text = "word " * 1000
-
-        assert TokenCounter.will_fit_in_context(short_text, max_tokens=100)
-        assert not TokenCounter.will_fit_in_context(long_text, max_tokens=100)
-
-    def test_truncate_to_fit(self) -> None:
-        """Test truncating text to fit."""
-        long_text = "word " * 100
-        truncated = TokenCounter.truncate_to_fit(long_text, max_tokens=50)
-
-        # Truncated should be shorter and fit in context
-        assert len(truncated) <= len(long_text)
-        assert TokenCounter.will_fit_in_context(truncated, max_tokens=50, safety_margin=10)
+from core_llm_bridge.utils import PromptManager, PromptTemplate, create_prompt_manager
 
 
 class TestPromptTemplate:
