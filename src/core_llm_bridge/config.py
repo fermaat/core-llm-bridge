@@ -1,75 +1,54 @@
 """
-Configuration management for core-llm-bridge.
+Configuration schema for core-llm-bridge.
 
-Settings are loaded from .env / .env.local at the project root.
-Logger is configured via core-utils' configure_logger.
+Settings is provided as a class for consumers that want a structured way to
+declare provider configuration. It is NOT instantiated here — the consuming
+application is responsible for instantiation and for configuring the logger.
 
-Usage:
-    from core_llm_bridge.config import settings, logger
+Usage in a consumer application:
+    from core_llm_bridge.config import Settings
+    from core_utils.logger import configure_logger
+
+    class AppSettings(Settings):
+        model_config = {"env_file": [".env"], ...}
+
+    settings = AppSettings()
+    configure_logger(settings)
 """
-
-from pathlib import Path
 
 from core_utils.logger import configure_logger, logger
 from core_utils.settings import CoreSettings
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-
 
 class Settings(CoreSettings):
     """
-    Application settings for core-llm-bridge.
+    Configuration schema for core-llm-bridge providers.
 
-    Inherits environment/logging fields from CoreSettings.
-    Adds provider-specific configuration on top.
+    Defines the fields each provider needs. Does not load any files.
+    Subclass and add env_file to model_config in your application.
     """
 
-    model_config = {
-        "case_sensitive": False,
-        "extra": "allow",
-        "env_file": [
-            str(PROJECT_ROOT / ".env"),
-            str(PROJECT_ROOT / ".env.local"),
-        ],
-        "env_file_encoding": "utf-8",
-    }
-
-    # ========== Ollama Provider ==========
+    # Ollama
     ollama_base_url: str = "http://localhost:11434"
     ollama_timeout: int = 300
-    ollama_default_model: str = "gemma3:4b"
+    ollama_default_model: str = ""
 
-    # ========== Anthropic Provider ==========
+    # Anthropic
     anthropic_api_key: str = ""
     anthropic_default_model: str = "claude-sonnet-4-6"
     anthropic_timeout: int = 300
 
-    # ========== OpenAI Provider ==========
+    # OpenAI
     openai_api_key: str = ""
     openai_default_model: str = "gpt-4o"
     openai_base_url: str = ""
     openai_timeout: int = 300
 
-    # ========== LLM Settings ==========
     max_context_tokens: int = 4096
     token_safety_margin: int = 100
-
-    # ========== Request Configuration ==========
     request_timeout: int = 60
     max_retries: int = 3
     retry_delay: float = 1.0
 
-    @property
-    def project_root(self) -> Path:
-        return PROJECT_ROOT
 
-
-settings = Settings()
-configure_logger(settings, log_file=str(settings.logs_dir / "llm-bridge.log"))
-
-__all__ = [
-    "settings",
-    "logger",
-    "configure_logger",
-    "PROJECT_ROOT",
-]
+__all__ = ["Settings", "configure_logger", "logger"]

@@ -31,13 +31,12 @@ Example .env:
     LOG_LEVEL=INFO
 """
 
-__version__ = "0.1.0"
-__author__ = "Your Name"
+__version__ = "1.3.0"
+__author__ = "Fernando Velasco"
 __license__ = "MIT"
 
-# Core imports
-# Configuration
-from .config import configure_logger, logger, settings
+# Configuration — Settings class and logger (no singleton instantiated here)
+from .config import Settings, configure_logger, logger
 from .core import (
     BaseLLMProvider,
     BridgeEngine,
@@ -82,7 +81,7 @@ __all__ = [
     "OpenAIProvider",
     "create_provider",
     # Config
-    "settings",
+    "Settings",
     "logger",
     "configure_logger",
     # Utils

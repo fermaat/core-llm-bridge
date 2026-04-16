@@ -13,7 +13,7 @@ from typing import Any
 
 import anthropic
 
-from core_llm_bridge.config import logger, settings
+from core_utils.logger import logger
 from core_llm_bridge.exceptions import (
     AnthropicAPIError,
     AnthropicAuthError,
@@ -53,36 +53,30 @@ class AnthropicProvider(BaseLLMProvider):
 
     def __init__(
         self,
-        model: str | None = None,
-        api_key: str | None = None,
-        timeout: int | None = None,
+        model: str,
+        api_key: str,
+        timeout: int = 300,
         **kwargs: Any,
     ) -> None:
         """
         Initialize the Anthropic provider.
 
         Args:
-            model: Model identifier. Defaults to ANTHROPIC_DEFAULT_MODEL from config.
-            api_key: Anthropic API key. Defaults to ANTHROPIC_API_KEY from config.
-            timeout: Request timeout in seconds. Defaults to ANTHROPIC_TIMEOUT from config.
+            model: Model identifier (e.g. "claude-sonnet-4-6"). Required.
+            api_key: Anthropic API key. Required.
+            timeout: Request timeout in seconds.
             **kwargs: Additional arguments passed to parent.
 
         Raises:
-            AnthropicAuthError: If no API key is provided or found in config.
+            AnthropicAuthError: If api_key is empty.
         """
-        if model is None:
-            model = settings.anthropic_default_model
-
         super().__init__(model=model, **kwargs)
 
-        self.api_key = api_key or settings.anthropic_api_key
-        if not self.api_key:
-            raise AnthropicAuthError(
-                "Anthropic API key is required. Set ANTHROPIC_API_KEY in .env "
-                "or pass api_key parameter."
-            )
+        if not api_key:
+            raise AnthropicAuthError("Anthropic API key is required.")
 
-        self.timeout = timeout or settings.anthropic_timeout
+        self.api_key = api_key
+        self.timeout = timeout
 
         self.client = anthropic.Anthropic(
             api_key=self.api_key,

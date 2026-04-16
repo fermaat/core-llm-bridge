@@ -8,7 +8,7 @@ It manages providers, conversation history, and coordinates all interactions.
 from collections.abc import AsyncGenerator, Generator
 from typing import Any
 
-from core_llm_bridge.config import logger
+from core_utils.logger import logger
 from core_llm_bridge.exceptions import LLMProviderError, ProviderError
 
 from .base import BaseLLMProvider

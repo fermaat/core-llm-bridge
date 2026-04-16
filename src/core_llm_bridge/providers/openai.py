@@ -15,7 +15,7 @@ from typing import Any, cast
 
 import openai
 
-from core_llm_bridge.config import logger, settings
+from core_utils.logger import logger
 from core_llm_bridge.exceptions import (
     OpenAIAPIError,
     OpenAIAuthError,
@@ -57,39 +57,33 @@ class OpenAIProvider(BaseLLMProvider):
 
     def __init__(
         self,
-        model: str | None = None,
-        api_key: str | None = None,
+        model: str,
+        api_key: str,
         base_url: str | None = None,
-        timeout: int | None = None,
+        timeout: int = 300,
         **kwargs: Any,
     ) -> None:
         """
         Initialize the OpenAI provider.
 
         Args:
-            model: Model identifier. Defaults to OPENAI_DEFAULT_MODEL from config.
-            api_key: OpenAI API key. Defaults to OPENAI_API_KEY from config.
-            base_url: API base URL. Defaults to OPENAI_BASE_URL from config (empty = OpenAI default).
-            timeout: Request timeout in seconds. Defaults to OPENAI_TIMEOUT from config.
+            model: Model identifier (e.g. "gpt-4o"). Required.
+            api_key: OpenAI API key. Required.
+            base_url: API base URL. None = default OpenAI endpoint.
+            timeout: Request timeout in seconds.
             **kwargs: Additional arguments passed to parent.
 
         Raises:
-            OpenAIAuthError: If no API key is provided or found in config.
+            OpenAIAuthError: If api_key is empty.
         """
-        if model is None:
-            model = settings.openai_default_model
-
         super().__init__(model=model, **kwargs)
 
-        self.api_key = api_key or settings.openai_api_key
-        if not self.api_key:
-            raise OpenAIAuthError(
-                "OpenAI API key is required. Set OPENAI_API_KEY in .env "
-                "or pass api_key parameter."
-            )
+        if not api_key:
+            raise OpenAIAuthError("OpenAI API key is required.")
 
-        self.base_url = base_url or settings.openai_base_url or None
-        self.timeout = timeout or settings.openai_timeout
+        self.api_key = api_key
+        self.base_url = base_url or None
+        self.timeout = timeout
 
         client_kwargs: dict[str, Any] = {
             "api_key": self.api_key,

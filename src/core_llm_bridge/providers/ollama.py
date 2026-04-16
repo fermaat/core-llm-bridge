@@ -15,7 +15,7 @@ from typing import Any
 
 import httpx
 
-from core_llm_bridge.config import logger, settings
+from core_utils.logger import logger
 from core_llm_bridge.exceptions import (
     OllamaConnectionError,
     OllamaModelNotFoundError,
@@ -55,37 +55,24 @@ class OllamaProvider(BaseLLMProvider):
 
     def __init__(
         self,
-        model: str | None = None,
-        base_url: str | None = None,
-        timeout: int | None = None,
+        model: str,
+        base_url: str = "http://localhost:11434",
+        timeout: int = 300,
         **kwargs: Any,
     ) -> None:
         """
         Initialize Ollama provider.
 
         Args:
-            model: Model name (e.g., "llama2"). Defaults to OLLAMA_DEFAULT_MODEL
-            base_url: Ollama service URL. Defaults to OLLAMA_BASE_URL from config
-            timeout: Request timeout in seconds. Defaults to OLLAMA_TIMEOUT from config
+            model: Model name (e.g., "llama2"). Required.
+            base_url: Ollama service URL.
+            timeout: Request timeout in seconds.
             **kwargs: Additional arguments passed to parent
-
-        Raises:
-            ValueError: If model is not specified and not in config
         """
-        # Get model from config if not provided
-        if model is None:
-            model = settings.ollama_default_model
-        if not model:
-            raise ValueError(
-                "Model must be specified. Set OLLAMA_DEFAULT_MODEL in .env "
-                "or pass model parameter"
-            )
-
         super().__init__(model=model, **kwargs)
 
-        # Get base URL and timeout from config or parameters
-        self.base_url = base_url or settings.ollama_base_url
-        self.timeout = timeout or settings.ollama_timeout
+        self.base_url = base_url
+        self.timeout = timeout
 
         # Initialize HTTP client
         self.client = httpx.Client(
