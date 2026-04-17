@@ -167,16 +167,19 @@ class AnthropicProvider(BaseLLMProvider):
     def _to_bridge_response(self, message: anthropic.types.Message) -> BridgeResponse:
         """Convert an Anthropic Message to BridgeResponse."""
         text = "".join(block.text for block in message.content if hasattr(block, "text"))
-        tokens_used = (message.usage.input_tokens or 0) + (message.usage.output_tokens or 0)
+        input_tokens = message.usage.input_tokens or 0
+        output_tokens = message.usage.output_tokens or 0
         finish_reason = message.stop_reason or "stop"
         return BridgeResponse(
             text=text,
             finish_reason=finish_reason,
-            tokens_used=tokens_used,
+            tokens_used=input_tokens + output_tokens,
+            input_tokens=input_tokens,
+            output_tokens=output_tokens,
             metadata={
                 "model": message.model,
-                "input_tokens": message.usage.input_tokens,
-                "output_tokens": message.usage.output_tokens,
+                "input_tokens": input_tokens,
+                "output_tokens": output_tokens,
                 "stop_reason": message.stop_reason,
             },
         )

@@ -89,6 +89,9 @@ class BridgeResponse(BaseModel):
     raw_response: dict[str, Any] | None = None
     tool_calls: list[ToolCall] = Field(default_factory=list)
     tokens_used: int | None = None
+    input_tokens: int | None = None
+    output_tokens: int | None = None
+    cost_usd: float | None = None
     finish_reason: str = "stop"  # stop, tool_use, length, error
     metadata: dict[str, Any] | None = None
 

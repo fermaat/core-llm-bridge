@@ -223,19 +223,25 @@ class OllamaProvider(BaseLLMProvider):
             generated_text = data.get("message", {}).get("content", "")
 
             # Extract token count if available
-            tokens_used = None
-            if "eval_count" in data:
-                tokens_used = data.get("eval_count", 0) + data.get("prompt_eval_count", 0)
+            input_tokens = data.get("prompt_eval_count")
+            output_tokens = data.get("eval_count")
+            tokens_used = (
+                (input_tokens + output_tokens)
+                if (input_tokens is not None and output_tokens is not None)
+                else None
+            )
 
             bridge_response = BridgeResponse(
                 text=generated_text,
                 finish_reason=data.get("done", True) and "stop" or "incomplete",
                 tokens_used=tokens_used,
+                input_tokens=input_tokens,
+                output_tokens=output_tokens,
                 raw_response=data,
                 metadata={
                     "model": self.model,
-                    "eval_count": data.get("eval_count"),
-                    "prompt_eval_count": data.get("prompt_eval_count"),
+                    "eval_count": output_tokens,
+                    "prompt_eval_count": input_tokens,
                     "eval_duration": data.get("eval_duration"),
                 },
             )

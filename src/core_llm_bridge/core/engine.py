@@ -8,6 +8,7 @@ It manages providers, conversation history, and coordinates all interactions.
 from collections.abc import AsyncGenerator, Generator
 from typing import Any
 
+from core_llm_bridge.cost_tracker import cost_tracker
 from core_llm_bridge.exceptions import LLMProviderError, ProviderError
 from core_utils.logger import logger
 
@@ -204,6 +205,7 @@ class BridgeEngine:
         if response.tool_calls:
             self._handle_tool_calls(response.tool_calls)
 
+        self._track_cost(response)
         logger.debug(f"Response received: {response.finish_reason}")
         return response
 
@@ -239,18 +241,22 @@ class BridgeEngine:
 
         # Stream response from provider
         full_text = ""
+        last_response: BridgeResponse | None = None
         for partial_response in self.provider.generate_stream(
             prompt=user_input,
             history=self.history,
             config=config,
         ):
             full_text += partial_response.text
+            last_response = partial_response
             yield partial_response
 
         # Add full response to history
         if full_text:
             self.history.add_assistant_message(full_text)
 
+        if last_response is not None:
+            self._track_cost(last_response)
         logger.debug("Stream completed")
 
     async def chat_async(
@@ -289,6 +295,7 @@ class BridgeEngine:
         # Add assistant response to history
         self.history.add_assistant_message(response.text)
 
+        self._track_cost(response)
         return response
 
     async def chat_stream_async(
@@ -319,17 +326,32 @@ class BridgeEngine:
 
         # Stream response from provider
         full_text = ""
+        last_response: BridgeResponse | None = None
         async for partial_response in self.provider.generate_stream_async(
             prompt=user_input,
             history=self.history,
             config=config,
         ):
             full_text += partial_response.text
+            last_response = partial_response
             yield partial_response
 
         # Add full response to history
         if full_text:
             self.history.add_assistant_message(full_text)
+
+        if last_response is not None:
+            self._track_cost(last_response)
+
+    def _track_cost(self, response: BridgeResponse) -> None:
+        """Record cost for a response if token counts are available."""
+        if response.input_tokens is not None and response.output_tokens is not None:
+            entry = cost_tracker.track(
+                model=self.provider.model,
+                input_tokens=response.input_tokens,
+                output_tokens=response.output_tokens,
+            )
+            response.cost_usd = entry.cost_usd
 
     def _handle_tool_calls(self, tool_calls: list[ToolCall]) -> None:
         """

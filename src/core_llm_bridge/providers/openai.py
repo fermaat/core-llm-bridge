@@ -148,19 +148,19 @@ class OpenAIProvider(BaseLLMProvider):
         choice = completion.choices[0]
         text = choice.message.content or ""
         finish_reason = choice.finish_reason
-        tokens_used = None
-        if completion.usage:
-            tokens_used = completion.usage.prompt_tokens + completion.usage.completion_tokens
+        input_tokens = completion.usage.prompt_tokens if completion.usage else None
+        output_tokens = completion.usage.completion_tokens if completion.usage else None
+        tokens_used = (input_tokens + output_tokens) if (input_tokens and output_tokens) else None
         return BridgeResponse(
             text=text,
             finish_reason=finish_reason,
             tokens_used=tokens_used,
+            input_tokens=input_tokens,
+            output_tokens=output_tokens,
             metadata={
                 "model": completion.model,
-                "prompt_tokens": completion.usage.prompt_tokens if completion.usage else None,
-                "completion_tokens": (
-                    completion.usage.completion_tokens if completion.usage else None
-                ),
+                "prompt_tokens": input_tokens,
+                "completion_tokens": output_tokens,
                 "finish_reason": finish_reason,
             },
         )

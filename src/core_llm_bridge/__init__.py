@@ -58,6 +58,9 @@ from .exceptions import (
 )
 from .providers import AnthropicProvider, OllamaProvider, OpenAIProvider, create_provider
 
+# Cost tracking
+from .cost_tracker import CostEntry, CostTracker, ModelPricing, cost_tracker
+
 # Utilities
 from .utils import (
     PromptManager,
@@ -84,6 +87,11 @@ __all__ = [
     "Settings",
     "logger",
     "configure_logger",
+    # Cost tracking
+    "cost_tracker",
+    "CostTracker",
+    "CostEntry",
+    "ModelPricing",
     # Utils
     "TokenCounter",
     "PromptTemplate",
