@@ -4,25 +4,29 @@ Quick smoke test for AnthropicProvider.
 Usage:
     pdm run python scripts/test_anthropic.py
 
-Requires ANTHROPIC_API_KEY set in .env or environment.
+Requires ANTHROPIC_API_KEY set in .env.
 Get your key at: https://console.anthropic.com/settings/keys
 """
 
+from _settings import logger, settings
+
 from core_llm_bridge import BridgeEngine
-from core_llm_bridge.config import logger, settings
 from core_llm_bridge.providers import AnthropicProvider
 
 
 def main() -> None:
     if not settings.anthropic_api_key:
-        print("ANTHROPIC_API_KEY is not set.")
-        print("Add it to your .env file:")
+        print("ANTHROPIC_API_KEY is not set. Add it to your .env file:")
         print("  ANTHROPIC_API_KEY=sk-ant-...")
         return
 
     logger.info(f"Model: {settings.anthropic_default_model}")
 
-    provider = AnthropicProvider()
+    provider = AnthropicProvider(
+        model=settings.anthropic_default_model,
+        api_key=settings.anthropic_api_key,
+        timeout=settings.anthropic_timeout,
+    )
     engine = BridgeEngine(
         provider=provider,
         system_prompt="You are a concise assistant. Answer in one sentence.",
@@ -42,7 +46,10 @@ def main() -> None:
     print()
 
     print("\n--- Multi-turn conversation ---")
-    engine2 = BridgeEngine(provider=AnthropicProvider())
+    engine2 = BridgeEngine(provider=AnthropicProvider(
+        model=settings.anthropic_default_model,
+        api_key=settings.anthropic_api_key,
+    ))
     r1 = engine2.chat("My name is Fernando.")
     print(f"Turn 1: {r1.text}")
     r2 = engine2.chat("What is my name?")

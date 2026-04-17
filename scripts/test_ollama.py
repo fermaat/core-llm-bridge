@@ -5,11 +5,12 @@ Usage:
     pdm run python scripts/test_ollama.py
 
 Requires Ollama running locally (default: http://localhost:11434).
-The model set in OLLAMA_DEFAULT_MODEL (default: gemma3:4b) must be pulled.
+The model set in OLLAMA_DEFAULT_MODEL must be pulled.
 """
 
+from _settings import logger, settings
+
 from core_llm_bridge import BridgeEngine
-from core_llm_bridge.config import logger, settings
 from core_llm_bridge.providers import OllamaProvider
 
 
@@ -17,7 +18,11 @@ def main() -> None:
     logger.info(f"Ollama URL: {settings.ollama_base_url}")
     logger.info(f"Model: {settings.ollama_default_model}")
 
-    provider = OllamaProvider()
+    provider = OllamaProvider(
+        model=settings.ollama_default_model,
+        base_url=settings.ollama_base_url,
+        timeout=settings.ollama_timeout,
+    )
 
     print("\n--- Health check ---")
     healthy = provider.health_check()
@@ -43,7 +48,10 @@ def main() -> None:
     print()
 
     print("\n--- Multi-turn conversation ---")
-    engine2 = BridgeEngine(provider=OllamaProvider())
+    engine2 = BridgeEngine(provider=OllamaProvider(
+        model=settings.ollama_default_model,
+        base_url=settings.ollama_base_url,
+    ))
     r1 = engine2.chat("My name is Fernando.")
     print(f"Turn 1: {r1.text}")
     r2 = engine2.chat("What is my name?")
