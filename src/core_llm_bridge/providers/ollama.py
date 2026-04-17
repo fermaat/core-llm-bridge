@@ -15,12 +15,12 @@ from typing import Any
 
 import httpx
 
-from core_utils.logger import logger
 from core_llm_bridge.exceptions import (
     OllamaConnectionError,
     OllamaModelNotFoundError,
     OllamaTimeoutError,
 )
+from core_utils.logger import logger
 
 from ..core.base import BaseLLMProvider
 from ..core.models import BridgeResponse, ConversationBuffer, LLMConfig

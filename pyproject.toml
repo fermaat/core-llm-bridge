@@ -152,7 +152,7 @@ ignore = [
 [tool.ruff.lint.isort]
 combine-as-imports = true
 force-single-line = false
-known-first-party = ["core_llm_bridge"]
+known-first-party = ["core_llm_bridge", "core_utils"]
 
 [tool.coverage.run]
 source = ["src/core_llm_bridge"]

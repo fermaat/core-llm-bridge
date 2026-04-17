@@ -16,11 +16,11 @@ from core_llm_bridge import (
     Message,
     MessageRole,
     OllamaProvider,
+    Settings,
     ToolCall,
     configure_logger,
     create_provider,
     logger,
-    settings,
 )
 
 __all__ = [
@@ -34,7 +34,7 @@ __all__ = [
     "ToolCall",
     "create_provider",
     "OllamaProvider",
+    "Settings",
     "configure_logger",
     "logger",
-    "settings",
 ]

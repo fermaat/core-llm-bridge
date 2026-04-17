@@ -15,13 +15,13 @@ from typing import Any, cast
 
 import openai
 
-from core_utils.logger import logger
 from core_llm_bridge.exceptions import (
     OpenAIAPIError,
     OpenAIAuthError,
     OpenAIConnectionError,
     OpenAIRateLimitError,
 )
+from core_utils.logger import logger
 
 from ..core.base import BaseLLMProvider
 from ..core.models import BridgeResponse, ConversationBuffer, LLMConfig
