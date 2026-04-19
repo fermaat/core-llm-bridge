@@ -48,6 +48,9 @@ from .core import (
     ToolCall,
 )
 
+# Cost tracking
+from .cost_tracker import CostEntry, CostTracker, ModelPricing, cost_tracker
+
 # Exceptions
 from .exceptions import (
     ConfigurationError,
@@ -57,9 +60,6 @@ from .exceptions import (
     TokenLimitError,
 )
 from .providers import AnthropicProvider, OllamaProvider, OpenAIProvider, create_provider
-
-# Cost tracking
-from .cost_tracker import CostEntry, CostTracker, ModelPricing, cost_tracker
 
 # Utilities
 from .utils import (
