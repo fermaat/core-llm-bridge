@@ -321,8 +321,6 @@ class OllamaProvider(BaseLLMProvider):
                         continue
 
                     try:
-                        data = response.json() if hasattr(response, "json") else {}
-                        # Parse line as JSON (Ollama sends newline-delimited JSON)
                         import json
 
                         data = json.loads(line)
