@@ -13,7 +13,7 @@ from core_llm_bridge.exceptions import LLMProviderError, ProviderError
 from core_utils.logger import logger
 
 from .base import BaseLLMProvider
-from .models import BridgeResponse, ConversationBuffer, LLMConfig, Message, ToolCall
+from .models import BridgeResponse, ConversationBuffer, LLMConfig, Message, MessageRole, ToolCall
 
 
 class BridgeEngine:
@@ -116,6 +116,16 @@ class BridgeEngine:
         self.history.clear()
         self.internal_state = None
         logger.debug("Conversation history cleared")
+
+    def export_history(self) -> list[dict[str, str]]:
+        """Serialize conversation history as role/content dicts (system prompt excluded)."""
+        return [m.to_dict_for_api() for m in self.history.messages]
+
+    def import_history(self, messages: list[dict[str, str]]) -> None:
+        """Restore conversation history from role/content dicts. Replaces current history."""
+        self.history.clear()
+        for msg in messages:
+            self.history.add_message(MessageRole(msg["role"]), msg["content"])
 
     def _update_internal_state(self, removed_messages: list[Message]) -> None:
         """Update an internal state summary from removed messages."""
