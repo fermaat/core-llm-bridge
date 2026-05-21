@@ -16,11 +16,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-
       - name: Install PDM
         uses: pdm-project/setup-pdm@v4
         with:
@@ -30,10 +25,13 @@ jobs:
         run: pdm install
 
       - name: Lint with ruff
-        run: pdm run ruff check src
+        run: pdm run ruff check src tests
 
       - name: Format check with black
-        run: pdm run black --check src
+        run: pdm run black --check src tests
 
       - name: Type check with mypy
-        run: pdm run mypy src
+        run: pdm run mypy src tests
+
+      - name: Run tests
+        run: pdm run pytest -q
